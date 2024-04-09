@@ -9,3 +9,4 @@ Collaborators: **Lam Thai Nguyen** and **Trung Kien Pham**
   - original_512x512: 1100 rice panicle images resized to (512, 512).
   - vertex_coordinates: rice panicle's vertices coordinates (100 corresponding .ricepr files).
   - annotated: ...
+- utils: tools for image processing.
