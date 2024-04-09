@@ -4,14 +4,7 @@ import numpy as np
 import json
 
 
-def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/") -> None:
-    """
-    Turns .json file from labelme to a binary image (512, 512)
-
-    Args:
-        json_path: dataset/annotated/2_2_1_1_3_DSC09839.json
-        original_512x512_path: dataset/original_512x512/2_2_1_1_3_DSC09839.JPG
-    """
+def json2binary(json_path, original_512x512_path, save_path='../dataset/annotated/') -> None:
     # Load JSON annotation file
     with open(json_path) as f:
         data = json.load(f)
@@ -32,22 +25,24 @@ def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/"
         # Fill object with white color
         cv2.fillPoly(background, [pts], (255, 255, 255))
 
-    index = len("dataset/original_512x512/")
-    cv2.imwrite(f'{save_path}{original_512x512_path[index:]}', background)
+    index = len('dataset/original_512x512/')
+    cv2.imwrite(f'{save_path}{original_512x512_path[index+2:]}', background)
+    print(f'{save_path}{original_512x512_path[index:]}')
+    cv2.imshow('result', background)
+    cv2.waitKey()
     
-    
-if __name__ == "__main__":
+if __name__ == '__main__':
     # ======Operating on single file======
-    json_path = "dataset/annotated/2_2_1_1_3_DSC09839.json"
-    original_512x512_path = "dataset/original_512x512/2_2_1_1_3_DSC09839.JPG"
-    json2binary(json_path, original_512x512_path)
+    #json_path = '../dataset/annotated/13_2_1_1_1_DSC01478.json'
+    #original_512x512_path = '../dataset/original_512x512/13_2_1_1_1_DSC01478.jpg'
+    #json2binary(json_path, original_512x512_path)
     
     # ======Automatic for the whole dataset======
-    # json_folder = "dataset/annotated"
-    # original_512x512_folder = "dataset/original_512x512"
-    # file_names = os.listdir(original_512x512_folder)
+     json_folder = "../dataset/annotated"
+     original_512x512_folder = "../dataset/original_512x512"
+     file_names = os.listdir(original_512x512_folder)
     
-    # for img in file_names:
-    #     img_name = img[:-4]
-    #     json2binary(json_path=f"{json_folder}/{img_name}.json", original_512x512_path=f"{original_512x512_folder}/{img}")
+     for img in file_names:
+         img_name = img[:-4]
+         json2binary(json_path=f"{json_folder}/{img_name}.json", original_512x512_path=f"{original_512x512_folder}/{img}")
     
