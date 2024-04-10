@@ -4,14 +4,7 @@ import numpy as np
 import json
 
 
-def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/annotated-T/") -> None:
-    """
-    Turns .json file from labelme to a binary image (512, 512)
-
-    Args:
-        json_path: dataset/annotated/2_2_1_1_3_DSC09839.json
-        original_512x512_path: dataset/original_512x512/2_2_1_1_3_DSC09839.JPG
-    """
+def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/annotated-K") -> None:
     # Load JSON annotation file
     with open(json_path) as f:
         data = json.load(f)
@@ -33,13 +26,15 @@ def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/a
         cv2.fillPoly(background, [pts], (255, 255, 255))
 
     index = len("dataset/original_512x512/")
-    cv2.imwrite(f'{save_path}{original_512x512_path[index:]}', background)
-    
+    cv2.imwrite(f'../{save_path}{original_512x512_path[index+2:]}', background)
+    print(f'./{save_path}{original_512x512_path[index+2:]}')
+    cv2.imshow("result", background)
+    cv2.waitKey()
     
 if __name__ == "__main__":
     # ======Operating on single file======
-    json_path = "dataset/annotated/annotated-T/64_2_1_2_2_DSC01661.json"
-    original_512x512_path = "dataset/original_512x512/64_2_1_2_2_DSC01661.jpg"
+    json_path = "../dataset/annotated/annotated-K/13_2_1_3_1_DSC01484.json"
+    original_512x512_path = "../dataset/original_512x512/13_2_1_3_1_DSC01484.jpg"
     json2binary(json_path, original_512x512_path)
     
     # ======Automatic for the whole dataset======
