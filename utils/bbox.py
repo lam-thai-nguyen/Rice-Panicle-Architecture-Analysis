@@ -36,87 +36,22 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     for x1, y1, x2, y2 in edges:
         if [x1, y1] in generating and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            if abs(x1 - x2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=1)
-                    
-            elif abs(x1 - x2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=2)
-                
-            if abs(y1 - y2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=3)
-            
-            elif abs(y1 - y2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
-            
-            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+            _bounding_box(img, x1, y1, x2, y2)
             
         if [x1, y1] in primary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            if abs(x1 - x2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=1)
-                    
-            elif abs(x1 - x2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=2)
-                
-            if abs(y1 - y2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=3)
-            
-            elif abs(y1 - y2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
-            
-            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+            _bounding_box(img, x1, y1, x2, y2)
             
         if [x1, y1] in secondary and [x2, y2] in end:
-            if abs(x1 - x2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=1)
-                    
-            elif abs(x1 - x2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=2)
-                
-            if abs(y1 - y2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=3)
-            
-            elif abs(y1 - y2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
-            
-            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+            _bounding_box(img, x1, y1, x2, y2)
             
         if [x1, y1] in tertiary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            if abs(x1 - x2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=1)
-                    
-            elif abs(x1 - x2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=2)
-                
-            if abs(y1 - y2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=3)
-            
-            elif abs(y1 - y2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
-            
-            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+            _bounding_box(img, x1, y1, x2, y2)
     
         if [x1, y1] in quaternary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            if abs(x1 - x2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=1)
-                    
-            elif abs(x1 - x2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=2)
-                
-            if abs(y1 - y2) <= 5:
-                _draw_bbox(img, x1, y1, x2, y2, condition=3)
-            
-            elif abs(y1 - y2) < 25:
-                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
-            
-            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+            _bounding_box(img, x1, y1, x2, y2)
 
     save_path = "dataset/bbox"
     index = len("dataset/original/")
@@ -218,9 +153,11 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
     return None
     
 
-def bounding_box(img, x1, y1, x2, y2) -> None:
+def _bounding_box(img, x1, y1, x2, y2) -> None:
     """
+    A shortcut for checking conditions and using _draw_bbox
     
+    Returns: None
     """
     if abs(x1 - x2) <= 5:
         _draw_bbox(img, x1, y1, x2, y2, condition=1)
@@ -249,8 +186,7 @@ if __name__ == "__main__":
     for img in img_names:
         img_path = original_folder_path + "/" + img
         xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
-        if xml_path == "dataset/vertex_coordinates/42_2_2_2_3_DSC01693.ricepr":
-            generate_bbox(img_path, xml_path)
-            print(f"\nSUCCESSFUL >>>> {img} <<<<")
-            break
+        generate_bbox(img_path, xml_path)
+        print(f"\nSUCCESSFUL >>>> {img} <<<<")
+        # break
     
