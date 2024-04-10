@@ -4,7 +4,7 @@ import numpy as np
 import json
 
 
-def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/") -> None:
+def json2binary(json_path, original_512x512_path, save_path="dataset/annotated-T/") -> None:
     """
     Turns .json file from labelme to a binary image (512, 512)
 
@@ -38,8 +38,8 @@ def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/"
     
 if __name__ == "__main__":
     # ======Operating on single file======
-    json_path = "dataset/annotated/2_2_1_1_3_DSC09839.json"
-    original_512x512_path = "dataset/original_512x512/2_2_1_1_3_DSC09839.JPG"
+    json_path = "dataset/annotated-T/64_2_1_2_2_DSC01661.json"
+    original_512x512_path = "dataset/original_512x512/64_2_1_2_2_DSC01661.jpg"
     json2binary(json_path, original_512x512_path)
     
     # ======Automatic for the whole dataset======
