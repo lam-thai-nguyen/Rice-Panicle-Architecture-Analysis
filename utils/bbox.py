@@ -14,38 +14,45 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     """
     img = cv2.imread(original_img_path)
     
-    # Bounding boxes for junctions
-    generating, end, primary, secondary = _get_vertex(vertex_coordinates_path)
+    # ========= Bounding boxes for junctions ===========
+    generating, end, primary, secondary, tertiary = _get_vertex(vertex_coordinates_path)
     
     for x, y in generating:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(0, 255, 255), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
     for x, y in primary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 255, 255), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
     for x, y in secondary:
         cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
-        cv2.circle(img, (x, y), 6, (255, 0, 0), -1)
-    for x, y in end:
-        cv2.circle(img, (x, y), 6, (0, 0, 255), -1)
+    for x, y in tertiary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
+    # for x, y in end:
+    #     cv2.circle(img, (x, y), 6, (0, 0, 255), -1)
         
-    # Bounding boxes for grains
+    # ========= Bounding boxes for grains =========
     edges = _get_edges(vertex_coordinates_path)
     
     for x1, y1, x2, y2 in edges:
-        if [x1, y1] in secondary and [x2, y2] in end:
-            if abs(x1 - x2) < 25:
-                cv2.rectangle(img, pt1=(x1 - 40, y1), pt2=(x2 + 40, y2), color=(255, 0, 0), thickness=1)
-            elif abs(y1 - y2) < 25:
-                cv2.rectangle(img, pt1=(x1, y1 - 40), pt2=(x2, y2 + 40), color=(255, 0, 0), thickness=1)
-            else:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 0, 0), thickness=1)
-            
         if [x1, y1] in generating and [x2, y2] in end:
-            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
             
         if [x1, y1] in primary and [x2, y2] in end:
-            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 255, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
             
-    # cv2.line(img, pt1=(100, 100), pt2=(140, 100), color=(0, 0, 255), thickness=2)
+        if [x1, y1] in secondary and [x2, y2] in end:
+            if abs(x1 - x2) <= 5:
+                _draw_bbox(img, x1, y1, x2, y2, condition=1)
+                    
+            elif abs(x1 - x2) < 25:
+                _draw_bbox(img, x1, y1, x2, y2, condition=2)
+                
+            if abs(y1 - y2) <= 5:
+                _draw_bbox(img, x1, y1, x2, y2, condition=3)
+            
+            elif abs(y1 - y2) < 25:
+                _draw_bbox(img, x1, y1, x2, y2, condition=4) 
+            
+            if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
+                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
             
     save_path = "dataset/bbox"
     index = len("dataset/original/")
@@ -59,6 +66,7 @@ def _get_vertex(vertex_coordinates_path):
         end: ...
         primary: ...
         secondary: ...
+        tertiary: ...
     """
     tree = ET.parse(vertex_coordinates_path)
     root = tree.getroot()
@@ -67,6 +75,7 @@ def _get_vertex(vertex_coordinates_path):
     end = []
     primary = []
     secondary = []
+    tertiary = []
     
     for vertex in root.iter('vertex'):
         x = int(vertex.attrib['x'])
@@ -80,8 +89,10 @@ def _get_vertex(vertex_coordinates_path):
             primary.append([x, y])
         elif type_ == "Seconday":
             secondary.append([x, y])
+        elif type_ == "Tertiary":
+            tertiary.append([x, y])
             
-    return generating, end, primary, secondary 
+    return generating, end, primary, secondary, tertiary
 
 
 def _get_edges(vertex_coordinates_path):
@@ -104,7 +115,42 @@ def _get_edges(vertex_coordinates_path):
         
         edges.append([x1, y1, x2, y2])
 
-    return edges    
+    return edges  
+
+
+def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
+    """
+    Draw bounding box based on conditions
+        condition = 1 (abs(x1 - x2) <= 5)
+                  = 2 (5 < abs(x1 - x2) < 25)
+                  = 3  (abs(y1 - y2) <= 5)
+                  = 4  (5 < abs(y1 - y2) < 25)
+    """  
+    if condition == 1:
+        if x1 > x2:
+            cv2.rectangle(img, pt1=(x1 + 12, y1), pt2=(x2 - 12, y2), color=(0, 0, 255), thickness=1)
+        elif x1 <= x2:
+            cv2.rectangle(img, pt1=(x1 - 12, y1), pt2=(x2 + 12, y2), color=(0, 0, 255), thickness=1)
+            
+    if condition == 2:
+        if x1 > x2:
+            cv2.rectangle(img, pt1=(x1 + 7, y1), pt2=(x2 - 5, y2), color=(0, 0, 255), thickness=1)
+        elif x1 <= x2:
+            cv2.rectangle(img, pt1=(x1 - 7, y1), pt2=(x2 + 5, y2), color=(0, 0, 255), thickness=1)
+     
+    if condition == 3:
+        if y1 > y2:
+            cv2.rectangle(img, pt1=(x1, y1 + 12), pt2=(x2, y2 - 12), color=(0, 0, 255), thickness=1)
+        elif y1 <= y2:
+            cv2.rectangle(img, pt1=(x1, y1 - 12), pt2=(x2, y2 + 12), color=(0, 0, 255), thickness=1)
+         
+    if condition == 4:
+        if y1 > y2:
+            cv2.rectangle(img, pt1=(x1, y1 + 7), pt2=(x2, y2 - 5), color=(0, 0, 255), thickness=1)
+        elif y1 <= y2:
+            cv2.rectangle(img, pt1=(x1, y1 - 7), pt2=(x2, y2 + 5), color=(0, 0, 255), thickness=1)
+        
+    return None
     
         
 if __name__ == "__main__":
@@ -118,5 +164,5 @@ if __name__ == "__main__":
         xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
         generate_bbox(img_path, xml_path)
         print(f"\nSUCCESSFUL >>>> {img} <<<<")
-        break
+        # break
     
