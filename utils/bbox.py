@@ -30,28 +30,20 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     # Bounding boxes for grains
     edges = _get_edges(vertex_coordinates_path)
     
-    # for x1, y1, x2, y2 in edges:
-    #     if [x1, y1] in end and [x2, y2] in secondary:
-    #         if abs(x1 - x2) < 10:
-    #             cv2.rectangle(img, pt1=(x1 - 10, y1), pt2=(x2 + 10, y2), color=(0, 0, 255), thickness=1)
-    #         elif abs(y1 - y2) < 10:
-    #             cv2.rectangle(img, pt1=(x1, y1 - 10), pt2=(x2, y2 + 10), color=(0, 0, 255), thickness=1)
-    #         else:
-    #             cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
-                
-    #     if [x1, y1] in secondary and [x2, y2] in end:
-    #         if abs(x1 - x2) < 25:
-    #             cv2.rectangle(img, pt1=(x1 - 40, y1), pt2=(x2 + 40, y2), color=(255, 0, 0), thickness=1)
-    #         elif abs(y1 - y2) < 25:
-    #             cv2.rectangle(img, pt1=(x1, y1 - 40), pt2=(x2, y2 + 40), color=(255, 0, 0), thickness=1)
-    #         else:
-    #             cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 0, 0), thickness=1)
+    for x1, y1, x2, y2 in edges:
+        if [x1, y1] in secondary and [x2, y2] in end:
+            if abs(x1 - x2) < 25:
+                cv2.rectangle(img, pt1=(x1 - 40, y1), pt2=(x2 + 40, y2), color=(255, 0, 0), thickness=1)
+            elif abs(y1 - y2) < 25:
+                cv2.rectangle(img, pt1=(x1, y1 - 40), pt2=(x2, y2 + 40), color=(255, 0, 0), thickness=1)
+            else:
+                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 0, 0), thickness=1)
             
-    #     if [x1, y1] in generating and [x2, y2] in end:
-    #         cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 255), thickness=1)
+        if [x1, y1] in generating and [x2, y2] in end:
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 255, 255), thickness=1)
             
-    #     if [x1, y1] in primary and [x2, y2] in end:
-    #         cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 255, 255), thickness=1)
+        if [x1, y1] in primary and [x2, y2] in end:
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(255, 255, 255), thickness=1)
             
     # cv2.line(img, pt1=(100, 100), pt2=(140, 100), color=(0, 0, 255), thickness=2)
             
