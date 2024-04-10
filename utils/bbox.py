@@ -15,16 +15,18 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     img = cv2.imread(original_img_path)
     
     # ========= Bounding boxes for junctions ===========
-    generating, end, primary, secondary, tertiary = _get_vertex(vertex_coordinates_path)
+    generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
     
     for x, y in generating:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
     for x, y in primary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
     for x, y in secondary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
     for x, y in tertiary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=1)
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
+    for x, y in quaternary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
     # for x, y in end:
     #     cv2.circle(img, (x, y), 6, (0, 0, 255), -1)
         
@@ -33,10 +35,10 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     
     for x1, y1, x2, y2 in edges:
         if [x1, y1] in generating and [x2, y2] in end:
-            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
             
         if [x1, y1] in primary and [x2, y2] in end:
-            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
             
         if [x1, y1] in secondary and [x2, y2] in end:
             if abs(x1 - x2) <= 5:
@@ -52,8 +54,14 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
                 _draw_bbox(img, x1, y1, x2, y2, condition=4) 
             
             if abs(x1 - x2) >= 25 and abs(y1 - y2) >= 25:
-                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=1)
+                cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
             
+        if [x1, y1] in tertiary and [x2, y2] in end:
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+    
+        if [x1, y1] in quaternary and [x2, y2] in end:
+            cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+
     save_path = "dataset/bbox"
     index = len("dataset/original/")
     cv2.imwrite(save_path + "/" + original_img_path[index:], img)
@@ -76,6 +84,7 @@ def _get_vertex(vertex_coordinates_path):
     primary = []
     secondary = []
     tertiary = []
+    quaternary = []
     
     for vertex in root.iter('vertex'):
         x = int(vertex.attrib['x'])
@@ -92,7 +101,7 @@ def _get_vertex(vertex_coordinates_path):
         elif type_ == "Tertiary":
             tertiary.append([x, y])
             
-    return generating, end, primary, secondary, tertiary
+    return generating, end, primary, secondary, tertiary, quaternary
 
 
 def _get_edges(vertex_coordinates_path):
@@ -128,27 +137,27 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
     """  
     if condition == 1:
         if x1 > x2:
-            cv2.rectangle(img, pt1=(x1 + 12, y1), pt2=(x2 - 12, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1 + 12, y1), pt2=(x2 - 12, y2), color=(0, 0, 255), thickness=2)
         elif x1 <= x2:
-            cv2.rectangle(img, pt1=(x1 - 12, y1), pt2=(x2 + 12, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1 - 12, y1), pt2=(x2 + 12, y2), color=(0, 0, 255), thickness=2)
             
     if condition == 2:
         if x1 > x2:
-            cv2.rectangle(img, pt1=(x1 + 7, y1), pt2=(x2 - 5, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1 + 7, y1), pt2=(x2 - 5, y2), color=(0, 0, 255), thickness=2)
         elif x1 <= x2:
-            cv2.rectangle(img, pt1=(x1 - 7, y1), pt2=(x2 + 5, y2), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1 - 7, y1), pt2=(x2 + 5, y2), color=(0, 0, 255), thickness=2)
      
     if condition == 3:
         if y1 > y2:
-            cv2.rectangle(img, pt1=(x1, y1 + 12), pt2=(x2, y2 - 12), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1 + 12), pt2=(x2, y2 - 12), color=(0, 0, 255), thickness=2)
         elif y1 <= y2:
-            cv2.rectangle(img, pt1=(x1, y1 - 12), pt2=(x2, y2 + 12), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1 - 12), pt2=(x2, y2 + 12), color=(0, 0, 255), thickness=2)
          
     if condition == 4:
         if y1 > y2:
-            cv2.rectangle(img, pt1=(x1, y1 + 7), pt2=(x2, y2 - 5), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1 + 7), pt2=(x2, y2 - 5), color=(0, 0, 255), thickness=2)
         elif y1 <= y2:
-            cv2.rectangle(img, pt1=(x1, y1 - 7), pt2=(x2, y2 + 5), color=(0, 0, 255), thickness=1)
+            cv2.rectangle(img, pt1=(x1, y1 - 7), pt2=(x2, y2 + 5), color=(0, 0, 255), thickness=2)
         
     return None
     
