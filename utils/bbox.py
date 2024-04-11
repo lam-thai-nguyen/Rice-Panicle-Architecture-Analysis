@@ -64,17 +64,6 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
     """
     img = cv2.imread(original_img_path)
     generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
-    for x, y in generating:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(0, 255, 255), thickness=2)
-    for x, y in primary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 255, 255), thickness=2)
-    for x, y in secondary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
-    for x, y in tertiary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(0, 255, 0), thickness=2)
-    for x, y in quaternary:
-        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
-
     edges = _get_edges(vertex_coordinates_path)
     parent = {}
     
@@ -100,15 +89,30 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
                 children[root].append((x2, y2))
           
     for parent in children:
-        distance = []
+        distance = {"lower": [], "upper": []}
+        distance_from = {"lower": [], "upper": []}
+        
         for child in children[parent]:
-            distance.append(np.linalg.norm(np.array(parent) - np.array(child)))
+            x_c, y_c = child
+            x_p, y_p = parent
+            if y_c > y_p:
+                distance['lower'].append(np.linalg.norm(np.array(parent) - np.array(child)))
+                distance_from['lower'].append(child)
+            else:
+                distance['upper'].append(np.linalg.norm(np.array(parent) - np.array(child)))
+                distance_from['upper'].append(child)
         
-        furthest_id = int(np.argmax(distance))
-        furthest_node = children[parent][furthest_id]
-        
-        cv2.rectangle(img, parent, furthest_node, (0, 0, 255), 2)
+        if distance['lower']:     
+            furthest_id_1 = int(np.argmax(distance['lower']))
+            furthest_node_1 = distance_from['lower'][furthest_id_1]
+            cv2.rectangle(img, parent, furthest_node_1, (0, 0, 255), 2)
             
+        if distance['upper']:
+            furthest_id_2 = int(np.argmax(distance['upper']))
+            furthest_node_2 = distance_from['upper'][furthest_id_2]
+            cv2.rectangle(img, parent, furthest_node_2, (0, 0, 255), 2)
+        
+        # break    
     
     cv2.imwrite("test.jpg", img)
             
