@@ -64,6 +64,17 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
     """
     img = cv2.imread(original_img_path)
     generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
+    for x, y in generating:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(0, 255, 255), thickness=2)
+    for x, y in primary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 255, 255), thickness=2)
+    for x, y in secondary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
+    for x, y in tertiary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(0, 255, 0), thickness=2)
+    for x, y in quaternary:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
+
     edges = _get_edges(vertex_coordinates_path)
     parent = {}
     
@@ -89,21 +100,14 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
                 children[root].append((x2, y2))
           
     for parent in children:
-        age = []
+        distance = []
         for child in children[parent]:
-            age.append(np.linalg.norm(np.array(parent) - np.array(child)))
+            distance.append(np.linalg.norm(np.array(parent) - np.array(child)))
         
-        age_mean = np.mean(age)
+        furthest_id = int(np.argmax(distance))
+        furthest_node = children[parent][furthest_id]
         
-        old_children_pos = np.argwhere(age >= age_mean)
-        old_children_pos = [int(index_) for index_ in old_children_pos[0]]
-        
-        old_children = [children[parent][pos] for pos in old_children_pos]
-        for old_child in old_children:
-            # print(old_child)
-            cv2.rectangle(img, parent, old_child, (0, 0, 255), 2)
-        
-        # break
+        cv2.rectangle(img, parent, furthest_node, (0, 0, 255), 2)
             
     
     cv2.imwrite("test.jpg", img)
