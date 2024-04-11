@@ -68,20 +68,14 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
     parent = {}
     
     for x1, y1, x2, y2 in edges:
-        if [x2, y2] not in primary:
+        if [x2, y2] not in primary and [x2, y2] not in generating:
             parent[(x2, y2)] = (x1, y1)
-        
-    # root_list = set()
-    # for x1, y1, x2, y2 in edges:
-    #     if [x2, y2] in end:
-    #         root = _get_root(x2, y2, parent)
-    #         root_list.add(root)
-            
-    # Pb_root = [pb_root for pb_root in list(root_list) if list(pb_root) in primary]
-                
-    # children = {root: [] for root in Pb_root}
     
-    children = {tuple(pb_node): [] for pb_node in primary}
+    for x, y in generating:
+        cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
+    
+    GenPri = generating + primary
+    children = {tuple(pb_node): [] for pb_node in GenPri}
     
     for x1, y1, x2, y2 in edges:
         if [x2, y2] in end:
@@ -91,33 +85,43 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
                 children[root].append((x2, y2))
           
     for pb_node in children:
-        # Each pb node may give growth to 2 pb branches
-        distance = {"lower": [], "upper": []}
-        distance_from = {"lower": [], "upper": []}
         x_pb, y_pb = pb_node
-        
-        for end_node in children[pb_node]:
-            _, y_end = end_node
-            if y_end > y_pb:
-                distance['lower'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
-                distance_from['lower'].append(end_node)
-            else:
-                distance['upper'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
-                distance_from['upper'].append(end_node)
-        
-        if distance['lower']:     
-            furthest_id_1 = int(np.argmax(distance['lower']))
-            furthest_node_1 = distance_from['lower'][furthest_id_1]
-            x2, y2 = furthest_node_1
-            _bounding_box_pb(img, x_pb, y_pb, x2, y2)
+        # Each pb node may give growth to 2 pb branches
+        if list(pb_node) in primary:
+            distance = {"lower": [], "upper": []}
+            distance_from = {"lower": [], "upper": []}
             
-        if distance['upper']:
-            furthest_id_2 = int(np.argmax(distance['upper']))
-            furthest_node_2 = distance_from['upper'][furthest_id_2]
-            x2, y2 = furthest_node_2
+            for end_node in children[pb_node]:
+                _, y_end = end_node
+                if y_end > y_pb:
+                    distance['lower'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
+                    distance_from['lower'].append(end_node)
+                else:
+                    distance['upper'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
+                    distance_from['upper'].append(end_node)
+            
+            if distance['lower']:     
+                furthest_id_1 = int(np.argmax(distance['lower']))
+                furthest_node_1 = distance_from['lower'][furthest_id_1]
+                x2, y2 = furthest_node_1
+                _bounding_box_pb(img, x_pb, y_pb, x2, y2)
+                
+            if distance['upper']:
+                furthest_id_2 = int(np.argmax(distance['upper']))
+                furthest_node_2 = distance_from['upper'][furthest_id_2]
+                x2, y2 = furthest_node_2
+                _bounding_box_pb(img, x_pb, y_pb, x2, y2)
+            
+        # Each generating node may give growth to one pb branch I think :))) (Wrong)
+        elif list(pb_node) in generating:
+            distance_gen = []
+            for end_node in children[pb_node]:
+                distance_gen.append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
+            furthest_id_0 = int(np.argmax(distance_gen))
+            furthest_node_0 = children[pb_node][furthest_id_0]
+            x2, y2 = furthest_node_0    
             _bounding_box_pb(img, x_pb, y_pb, x2, y2)
-        
-        # break    
+
     
     save_path = "dataset/bbox/primary_branches"
     index = len("dataset/original/")
@@ -226,8 +230,8 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
                     = 4 (5 < abs(y1 - y2) < 25)
 
                     (for primary branches bbox)
-                    = 5 (abs(x1 - x2) <= 70)
-                    = 6 (abs(y1 - y2) <= 70)
+                    = 5 (abs(x1 - x2) <= 90)
+                    = 6 (abs(y1 - y2) <= 90)
     """  
     if condition == 1:
         if x1 > x2:
@@ -297,13 +301,13 @@ def _bounding_box_pb(img, x1, y1, x2, y2) -> None:
     
     Returns: None
     """
-    if abs(x1 - x2) <= 70:
+    if abs(x1 - x2) <= 90:
         _draw_bbox(img, x1, y1, x2, y2, condition=5)
               
-    if abs(y1 - y2) <= 70:
+    if abs(y1 - y2) <= 90:
         _draw_bbox(img, x1, y1, x2, y2, condition=6)
     
-    if abs(x1 - x2) > 70 and abs(y1 - y2) > 70:
+    if abs(x1 - x2) > 90 and abs(y1 - y2) > 90:
         cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
     
     return None
@@ -326,7 +330,7 @@ if __name__ == "__main__":
         generate_bbox_pb(img_path, xml_path)
         
         print(f"\nSUCCESSFUL >>>> {img} <<<<")
-        break
+        # break
     
     # ========Inspect edges============ (Optional)
     # inspect_edges("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
