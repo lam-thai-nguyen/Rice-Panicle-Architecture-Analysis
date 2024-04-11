@@ -53,7 +53,7 @@ def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
             _bounding_box_grains_junctions(img, x1, y1, x2, y2)
 
-    save_path = "dataset/bbox"
+    save_path = "dataset/bbox/grains_junctions"
     index = len("dataset/original/")
     cv2.imwrite(save_path + "/" + original_img_path[index:], img)
     
@@ -119,8 +119,9 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
         
         # break    
     
-    cv2.imwrite("test.jpg", img)
-            
+    save_path = "dataset/bbox/primary_branches"
+    index = len("dataset/original/")
+    cv2.imwrite(save_path + "/" + original_img_path[index:], img)            
 
 def inspect_edges(original_img_path, vertex_coordinates_path):
     """
@@ -325,7 +326,7 @@ if __name__ == "__main__":
         generate_bbox_pb(img_path, xml_path)
         
         print(f"\nSUCCESSFUL >>>> {img} <<<<")
-        # break
+        break
     
     # ========Inspect edges============ (Optional)
     # inspect_edges("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
