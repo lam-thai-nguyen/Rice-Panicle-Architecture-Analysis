@@ -94,10 +94,10 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
         # Each pb node may give growth to 2 pb branches
         distance = {"lower": [], "upper": []}
         distance_from = {"lower": [], "upper": []}
+        x_pb, y_pb = pb_node
         
         for end_node in children[pb_node]:
-            x_end, y_end = end_node
-            x_pb, y_pb = pb_node
+            _, y_end = end_node
             if y_end > y_pb:
                 distance['lower'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
                 distance_from['lower'].append(end_node)
@@ -108,12 +108,14 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
         if distance['lower']:     
             furthest_id_1 = int(np.argmax(distance['lower']))
             furthest_node_1 = distance_from['lower'][furthest_id_1]
-            cv2.rectangle(img, pb_node, furthest_node_1, (0, 0, 255), 2)
+            x2, y2 = furthest_node_1
+            _bounding_box_pb(img, x_pb, y_pb, x2, y2)
             
         if distance['upper']:
             furthest_id_2 = int(np.argmax(distance['upper']))
             furthest_node_2 = distance_from['upper'][furthest_id_2]
-            cv2.rectangle(img, pb_node, furthest_node_2, (0, 0, 255), 2)
+            x2, y2 = furthest_node_2
+            _bounding_box_pb(img, x_pb, y_pb, x2, y2)
         
         # break    
     
@@ -223,8 +225,8 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
                     = 4 (5 < abs(y1 - y2) < 25)
 
                     (for primary branches bbox)
-                    = 5 (abs(x1 - x2) <= 40)
-                    = 6 (abs(y1 - y2) <= 40)
+                    = 5 (abs(x1 - x2) <= 70)
+                    = 6 (abs(y1 - y2) <= 70)
     """  
     if condition == 1:
         if x1 > x2:
@@ -252,15 +254,15 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
         
     if condition == 5:
         if x1 > x2:
-            cv2.rectangle(img, pt1=(x1 + 50, y1), pt2=(x2 - 50, y2), color=(0, 0, 255), thickness=2)
+            cv2.rectangle(img, pt1=(x1 + 70, y1), pt2=(x2 - 70, y2), color=(0, 255, 255), thickness=2)
         elif x1 <= x2:
-            cv2.rectangle(img, pt1=(x1 - 50, y1), pt2=(x2 + 50, y2), color=(0, 0, 255), thickness=2)
+            cv2.rectangle(img, pt1=(x1 - 70, y1), pt2=(x2 + 70, y2), color=(0, 255, 255), thickness=2)
     
     if condition == 6:
         if y1 > y2:
-            cv2.rectangle(img, pt1=(x1, y1 + 50), pt2=(x2, y2 - 50), color=(0, 0, 255), thickness=2)
+            cv2.rectangle(img, pt1=(x1, y1 + 70), pt2=(x2, y2 - 70), color=(255, 0, 255), thickness=2)
         elif y1 <= y2:
-            cv2.rectangle(img, pt1=(x1, y1 - 50), pt2=(x2, y2 + 50), color=(0, 0, 255), thickness=2)
+            cv2.rectangle(img, pt1=(x1, y1 - 70), pt2=(x2, y2 + 70), color=(255, 0, 255), thickness=2)
     
     return None
 
@@ -294,30 +296,36 @@ def _bounding_box_pb(img, x1, y1, x2, y2) -> None:
     
     Returns: None
     """
-    if abs(x1 - x2) <= 40:
+    if abs(x1 - x2) <= 70:
         _draw_bbox(img, x1, y1, x2, y2, condition=5)
               
-    if abs(y1 - y2) <= 40:
+    if abs(y1 - y2) <= 70:
         _draw_bbox(img, x1, y1, x2, y2, condition=6)
+    
+    if abs(x1 - x2) > 70 and abs(y1 - y2) > 70:
+        cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
     
     return None
 
 
 if __name__ == "__main__":
-    # original_folder_path = "dataset/original"
-    # img_names = os.listdir(original_folder_path)
+    original_folder_path = "dataset/original"
+    img_names = os.listdir(original_folder_path)
     
-    # xml_folder_path = "dataset/vertex_coordinates"
+    xml_folder_path = "dataset/vertex_coordinates"
     
-    # for img in img_names:
-    #     img_path = original_folder_path + "/" + img
-    #     xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
-    #     generate_bbox_grains_junctions(img_path, xml_path)
-    #     print(f"\nSUCCESSFUL >>>> {img} <<<<")
-    #     # break
-    
-    # =======Bounding boxes for Primary branches============
-    generate_bbox_pb("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
+    for img in img_names:
+        img_path = original_folder_path + "/" + img
+        xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
+        
+        # =======Bounding boxes for grains/junctions============
+        # generate_bbox_grains_junctions(img_path, xml_path)
+        
+        # =======Bounding boxes for Primary branches============
+        generate_bbox_pb(img_path, xml_path)
+        
+        print(f"\nSUCCESSFUL >>>> {img} <<<<")
+        # break
     
     # ========Inspect edges============ (Optional)
     # inspect_edges("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
