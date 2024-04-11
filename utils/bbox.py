@@ -4,7 +4,7 @@ import cv2
 import xml.etree.ElementTree as ET
 
 
-def generate_bbox(original_img_path, vertex_coordinates_path):
+def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
     """
     Create bounding boxes for grains and junctions
 
@@ -57,9 +57,73 @@ def generate_bbox(original_img_path, vertex_coordinates_path):
     index = len("dataset/original/")
     cv2.imwrite(save_path + "/" + original_img_path[index:], img)
     
+    
+def generate_bbox_pb(original_img_path, vertex_coordinates_path):
+    """
+    Create bounding boxes for primary branches (Pb)
+    """
+    img = cv2.imread(original_img_path)
+    generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
+    edges = _get_edges(vertex_coordinates_path)
+    parent = {}
+    
+    for x1, y1, x2, y2 in edges:
+        if [x2, y2] not in primary:
+            parent[(x2, y2)] = (x1, y1)
+        
+    root_list = []
+    for x1, y1, x2, y2 in edges:
+        if [x2, y2] in end:
+            root = _get_root(x2, y2, parent)
+            root_list.append(root)
+            
+    children = {root: [] for root in root_list}
+    
+    for x1, y1, x2, y2 in edges:
+        if [x2, y2] in end:
+            root = _get_root(x2, y2, parent)
+            children[root].append((x2, y2))
+    
+    for parent in children:
+        age = []
+        for child in children[parent]:
+            age.append(np.linalg.norm(np.array(parent) - np.array(child)))
+        
+        age_mean = np.mean(age)
+        
+        old_children_pos = np.argwhere(age >= age_mean)
+        old_children_pos = [int(index_) for index_ in old_children_pos[0]]
+        
+        old_children = [children[parent][pos] for pos in old_children_pos]
+        for old_child in old_children:
+            # print(old_child)
+            cv2.rectangle(img, parent, old_child, (0, 0, 255), 2)
+        
+        # break
+            
+    
+    cv2.imwrite("test.jpg", img)
+            
+
+def inspect_edges(original_img_path, vertex_coordinates_path):
+    """
+    Inspect all the edges of an image (Optional - Only for visualization purpose)
+    """
+    img = cv2.imread(original_img_path)
+    edges = _get_edges(vertex_coordinates_path)
+    for x1, y1, x2, y2 in edges:
+        cv2.line(img, (x1, y1), (x2, y2), (0, 255, 255), 2)
+        cv2.circle(img, (x1, y1), 5, (0, 0, 255), -1)
+        cv2.circle(img, (x2, y2), 5, (0, 0, 255), -1)
+        
+    index = len("dataset/original/")
+    cv2.imwrite(f"inspect_{original_img_path[index:]}", img)
+
 
 def _get_vertex(vertex_coordinates_path):
     """
+    Reads xml file and extracts vertices information
+    
     Returns:
         generating (list[list]): coordinates of all generating vertices
         end: ...
@@ -97,6 +161,8 @@ def _get_vertex(vertex_coordinates_path):
 
 def _get_edges(vertex_coordinates_path):
     """
+    Reads xml file and extracts edges information
+    
     Returns: edges: [x1, y1, x2, y2] with (x_i, y_i) -> vertex_i
     """
     tree = ET.parse(vertex_coordinates_path)
@@ -118,9 +184,23 @@ def _get_edges(vertex_coordinates_path):
     return edges  
 
 
+def _get_root(x, y, parent: dict) -> list:
+    """
+    Given a node, returns the root
+    """
+    while True:
+        try:
+            root = parent[(x, y)]
+            x, y = root
+        except:
+            break
+        
+    return root
+
+
 def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
     """
-    Draw bounding box based on conditions
+    Draw bounding box based on conditions (grains and junctions)
         condition = 1 (abs(x1 - x2) <= 5)
                   = 2 (5 < abs(x1 - x2) < 25)
                   = 3  (abs(y1 - y2) <= 5)
@@ -155,7 +235,7 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
 
 def _bounding_box(img, x1, y1, x2, y2) -> None:
     """
-    A shortcut for checking conditions and using _draw_bbox
+    A shortcut for checking conditions and using _draw_bbox (grains and junctions)
     
     Returns: None
     """
@@ -178,15 +258,21 @@ def _bounding_box(img, x1, y1, x2, y2) -> None:
 
         
 if __name__ == "__main__":
-    original_folder_path = "dataset/original"
-    img_names = os.listdir(original_folder_path)
+    # original_folder_path = "dataset/original"
+    # img_names = os.listdir(original_folder_path)
     
-    xml_folder_path = "dataset/vertex_coordinates"
+    # xml_folder_path = "dataset/vertex_coordinates"
     
-    for img in img_names:
-        img_path = original_folder_path + "/" + img
-        xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
-        generate_bbox(img_path, xml_path)
-        print(f"\nSUCCESSFUL >>>> {img} <<<<")
-        # break
+    # for img in img_names:
+    #     img_path = original_folder_path + "/" + img
+    #     xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
+    #     generate_bbox_grains_junctions(img_path, xml_path)
+    #     print(f"\nSUCCESSFUL >>>> {img} <<<<")
+    #     # break
+    
+    # =======Bounding boxes for Primary branches============
+    generate_bbox_pb("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
+    
+    # ========Inspect edges============ (Optional)
+    # inspect_edges("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
     
