@@ -36,22 +36,22 @@ def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
     for x1, y1, x2, y2 in edges:
         if [x1, y1] in generating and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box(img, x1, y1, x2, y2)
+            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
             
         if [x1, y1] in primary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box(img, x1, y1, x2, y2)
+            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
             
         if [x1, y1] in secondary and [x2, y2] in end:
-            _bounding_box(img, x1, y1, x2, y2)
+            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
             
         if [x1, y1] in tertiary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box(img, x1, y1, x2, y2)
+            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
     
         if [x1, y1] in quaternary and [x2, y2] in end:
             # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box(img, x1, y1, x2, y2)
+            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
 
     save_path = "dataset/bbox"
     index = len("dataset/original/")
@@ -71,46 +71,49 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
         if [x2, y2] not in primary:
             parent[(x2, y2)] = (x1, y1)
         
-    root_list = set()
-    for x1, y1, x2, y2 in edges:
-        if [x2, y2] in end:
-            root = _get_root(x2, y2, parent)
-            root_list.add(root)
+    # root_list = set()
+    # for x1, y1, x2, y2 in edges:
+    #     if [x2, y2] in end:
+    #         root = _get_root(x2, y2, parent)
+    #         root_list.add(root)
             
-    Pb_root = [pb_root for pb_root in list(root_list) if list(pb_root) in primary]
+    # Pb_root = [pb_root for pb_root in list(root_list) if list(pb_root) in primary]
                 
-    children = {root: [] for root in Pb_root}
+    # children = {root: [] for root in Pb_root}
+    
+    children = {tuple(pb_node): [] for pb_node in primary}
     
     for x1, y1, x2, y2 in edges:
         if [x2, y2] in end:
             root = _get_root(x2, y2, parent)
             # if root is primary node rather than generating node
-            if root in children.keys():
+            if root in children:
                 children[root].append((x2, y2))
           
-    for parent in children:
+    for pb_node in children:
+        # Each pb node may give growth to 2 pb branches
         distance = {"lower": [], "upper": []}
         distance_from = {"lower": [], "upper": []}
         
-        for child in children[parent]:
-            x_c, y_c = child
-            x_p, y_p = parent
-            if y_c > y_p:
-                distance['lower'].append(np.linalg.norm(np.array(parent) - np.array(child)))
-                distance_from['lower'].append(child)
+        for end_node in children[pb_node]:
+            x_end, y_end = end_node
+            x_pb, y_pb = pb_node
+            if y_end > y_pb:
+                distance['lower'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
+                distance_from['lower'].append(end_node)
             else:
-                distance['upper'].append(np.linalg.norm(np.array(parent) - np.array(child)))
-                distance_from['upper'].append(child)
+                distance['upper'].append(np.linalg.norm(np.array(pb_node) - np.array(end_node)))
+                distance_from['upper'].append(end_node)
         
         if distance['lower']:     
             furthest_id_1 = int(np.argmax(distance['lower']))
             furthest_node_1 = distance_from['lower'][furthest_id_1]
-            cv2.rectangle(img, parent, furthest_node_1, (0, 0, 255), 2)
+            cv2.rectangle(img, pb_node, furthest_node_1, (0, 0, 255), 2)
             
         if distance['upper']:
             furthest_id_2 = int(np.argmax(distance['upper']))
             furthest_node_2 = distance_from['upper'][furthest_id_2]
-            cv2.rectangle(img, parent, furthest_node_2, (0, 0, 255), 2)
+            cv2.rectangle(img, pb_node, furthest_node_2, (0, 0, 255), 2)
         
         # break    
     
@@ -213,10 +216,15 @@ def _get_root(x, y, parent: dict) -> list:
 def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
     """
     Draw bounding box based on conditions (grains and junctions)
-        condition = 1 (abs(x1 - x2) <= 5)
-                  = 2 (5 < abs(x1 - x2) < 25)
-                  = 3  (abs(y1 - y2) <= 5)
-                  = 4  (5 < abs(y1 - y2) < 25)
+        condition   (for grains/junctions bbox)
+                    = 1 (abs(x1 - x2) <= 5)
+                    = 2 (5 < abs(x1 - x2) < 25)
+                    = 3 (abs(y1 - y2) <= 5)
+                    = 4 (5 < abs(y1 - y2) < 25)
+
+                    (for primary branches bbox)
+                    = 5 (abs(x1 - x2) <= 40)
+                    = 6 (abs(y1 - y2) <= 40)
     """  
     if condition == 1:
         if x1 > x2:
@@ -242,10 +250,21 @@ def _draw_bbox(img, x1, y1, x2, y2, condition: int) -> None:
         elif y1 <= y2:
             cv2.rectangle(img, pt1=(x1, y1 - 7), pt2=(x2, y2 + 5), color=(0, 0, 255), thickness=2)
         
-    return None
+    if condition == 5:
+        if x1 > x2:
+            cv2.rectangle(img, pt1=(x1 + 50, y1), pt2=(x2 - 50, y2), color=(0, 0, 255), thickness=2)
+        elif x1 <= x2:
+            cv2.rectangle(img, pt1=(x1 - 50, y1), pt2=(x2 + 50, y2), color=(0, 0, 255), thickness=2)
     
+    if condition == 6:
+        if y1 > y2:
+            cv2.rectangle(img, pt1=(x1, y1 + 50), pt2=(x2, y2 - 50), color=(0, 0, 255), thickness=2)
+        elif y1 <= y2:
+            cv2.rectangle(img, pt1=(x1, y1 - 50), pt2=(x2, y2 + 50), color=(0, 0, 255), thickness=2)
+    
+    return None
 
-def _bounding_box(img, x1, y1, x2, y2) -> None:
+def _bounding_box_grains_junctions(img, x1, y1, x2, y2) -> None:
     """
     A shortcut for checking conditions and using _draw_bbox (grains and junctions)
     
@@ -269,6 +288,21 @@ def _bounding_box(img, x1, y1, x2, y2) -> None:
     return None
 
         
+def _bounding_box_pb(img, x1, y1, x2, y2) -> None:
+    """
+    A shortcut for checking conditions and using _draw_bbox (primary branches)
+    
+    Returns: None
+    """
+    if abs(x1 - x2) <= 40:
+        _draw_bbox(img, x1, y1, x2, y2, condition=5)
+              
+    if abs(y1 - y2) <= 40:
+        _draw_bbox(img, x1, y1, x2, y2, condition=6)
+    
+    return None
+
+
 if __name__ == "__main__":
     # original_folder_path = "dataset/original"
     # img_names = os.listdir(original_folder_path)
