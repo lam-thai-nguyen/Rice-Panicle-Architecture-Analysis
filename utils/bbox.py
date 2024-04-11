@@ -71,19 +71,23 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
         if [x2, y2] not in primary:
             parent[(x2, y2)] = (x1, y1)
         
-    root_list = []
+    root_list = set()
     for x1, y1, x2, y2 in edges:
         if [x2, y2] in end:
             root = _get_root(x2, y2, parent)
-            root_list.append(root)
+            root_list.add(root)
             
-    children = {root: [] for root in root_list}
+    Pb_root = [pb_root for pb_root in list(root_list) if list(pb_root) in primary]
+                
+    children = {root: [] for root in Pb_root}
     
     for x1, y1, x2, y2 in edges:
         if [x2, y2] in end:
             root = _get_root(x2, y2, parent)
-            children[root].append((x2, y2))
-    
+            # if root is primary node rather than generating node
+            if root in children.keys():
+                children[root].append((x2, y2))
+          
     for parent in children:
         age = []
         for child in children[parent]:
