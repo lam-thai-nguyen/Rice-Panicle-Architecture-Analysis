@@ -34,23 +34,7 @@ def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
     edges = _get_edges(vertex_coordinates_path)
     
     for x1, y1, x2, y2 in edges:
-        if [x1, y1] in generating and [x2, y2] in end:
-            # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
-            
-        if [x1, y1] in primary and [x2, y2] in end:
-            # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
-            
-        if [x1, y1] in secondary and [x2, y2] in end:
-            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
-            
-        if [x1, y1] in tertiary and [x2, y2] in end:
-            # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
-            _bounding_box_grains_junctions(img, x1, y1, x2, y2)
-    
-        if [x1, y1] in quaternary and [x2, y2] in end:
-            # cv2.rectangle(img, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
+        if [x2, y2] in end:
             _bounding_box_grains_junctions(img, x1, y1, x2, y2)
 
     save_path = "dataset/bbox/grains_junctions"
@@ -324,10 +308,10 @@ if __name__ == "__main__":
         xml_path = xml_folder_path + "/" + img[:-4] + ".ricepr"
         
         # =======Bounding boxes for grains/junctions============
-        # generate_bbox_grains_junctions(img_path, xml_path)
+        generate_bbox_grains_junctions(img_path, xml_path)
         
         # =======Bounding boxes for Primary branches============
-        generate_bbox_pb(img_path, xml_path)
+        # generate_bbox_pb(img_path, xml_path)
         
         print(f"\nSUCCESSFUL >>>> {img} <<<<")
         # break
