@@ -11,5 +11,7 @@ Collaborators: **Lam Thai Nguyen** and **Trung Kien Pham**
   - annotated: 2 versions of 100 x (binary image, json file).
     - annotated-T: annotated by **Lam Thai Nguyen**
     - annotated-K: annotated by **Trung Kien Pham**
-  - bbox: bounding boxes results for grains/junctions detection.
+  - bbox: 
+    - grains_junctions: bounding boxes results for grains/junctions detection.
+    - primary_branches: bounding boxes results for primary branches (Pb) detection.
 - utils: tools/utils.
