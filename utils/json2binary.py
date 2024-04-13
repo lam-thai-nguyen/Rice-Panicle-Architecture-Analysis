@@ -38,8 +38,9 @@ def json2binary(json_path, original_512x512_path, save_path="dataset/annotated/a
     
 if __name__ == "__main__":
     # ======Operating on single file======
-    json_path = "dataset/annotated/annotated-T/64_2_1_2_2_DSC01661.json"
-    original_512x512_path = "dataset/original_512x512/64_2_1_2_2_DSC01661.jpg"
+    json_path = "dataset/annotated/annotated-T/63_2_1_1_3_DSC01618.json"
+    index = len("dataset/annotated/annotated-T/")
+    original_512x512_path = f"dataset/original_512x512/{json_path[index:-5]}.jpg"
     json2binary(json_path, original_512x512_path)
     
     # ======Automatic for the whole dataset======
