@@ -104,11 +104,12 @@ def generate_bbox_pb(original_img_path, vertex_coordinates_path):
             furthest_node_0 = children[pb_node][furthest_id_0]
             x2, y2 = furthest_node_0    
             _bounding_box_pb(img, x_pb, y_pb, x2, y2)
-
     
-    save_path = "dataset/bbox/primary_branches"
-    index = len("dataset/original/")
-    cv2.imwrite(save_path + "/" + original_img_path[index:], img)            
+    # info = O. glaberrima/2_2_1_1_3_DSC09839.jpg
+    info = '/'.join(original_img_path.split('/')[-2:])
+    save_path = "dataset/bbox/primary_branches/" + info
+    cv2.imwrite(save_path, img)
+      
 
 def inspect_edges(original_img_path, vertex_coordinates_path):
     """
