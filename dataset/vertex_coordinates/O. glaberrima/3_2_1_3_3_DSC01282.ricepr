@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--Rice Panicel Strucutre File
+-The xy-origin is the left top point in the screen
+-The graph is directed
+-To recover the strucutre, detect the root then span through out the graph -->
+<result 	 signature="STRUCTURE" 	 imagepath="3_2_1_3_3_DSC01282.JPG">
+<graph>
+	<vertices>
+		<vertex id="java.awt.Point[x=655,y=556]" x="655" y="556" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=741,y=768]" x="741" y="768" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=545,y=236]" x="545" y="236" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=1333,y=515]" x="1333" y="515" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=598,y=868]" x="598" y="868" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=617,y=557]" x="617" y="557" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=585,y=613]" x="585" y="613" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=1282,y=892]" x="1282" y="892" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=410,y=499]" x="410" y="499" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=547,y=680]" x="547" y="680" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=737,y=495]" x="737" y="495" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=502,y=659]" x="502" y="659" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=901,y=897]" x="901" y="897" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=1061,y=690]" x="1061" y="690" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=515,y=685]" x="515" y="685" type="Generating" fixed="true"     />
+		<vertex id="java.awt.Point[x=824,y=627]" x="824" y="627" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=749,y=841]" x="749" y="841" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=1051,y=698]" x="1051" y="698" type="Generating" fixed="true"     />
+		<vertex id="java.awt.Point[x=499,y=601]" x="499" y="601" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=890,y=636]" x="890" y="636" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=635,y=686]" x="635" y="686" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=606,y=728]" x="606" y="728" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=942,y=860]" x="942" y="860" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=770,y=739]" x="770" y="739" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=183,y=447]" x="183" y="447" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=1050,y=697]" x="1050" y="697" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=1039,y=699]" x="1039" y="699" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=917,y=662]" x="917" y="662" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=982,y=1235]" x="982" y="1235" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=714,y=538]" x="714" y="538" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=604,y=685]" x="604" y="685" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=784,y=686]" x="784" y="686" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=595,y=801]" x="595" y="801" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=614,y=1106]" x="614" y="1106" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=322,y=999]" x="322" y="999" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=719,y=761]" x="719" y="761" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=919,y=695]" x="919" y="695" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=76,y=664]" x="76" y="664" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=445,y=274]" x="445" y="274" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=915,y=692]" x="915" y="692" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=1110,y=393]" x="1110" y="393" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=785,y=499]" x="785" y="499" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=919,y=247]" x="919" y="247" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=653,y=759]" x="653" y="759" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=746,y=591]" x="746" y="591" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=771,y=801]" x="771" y="801" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=757,y=692]" x="757" y="692" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=429,y=604]" x="429" y="604" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=782,y=664]" x="782" y="664" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=927,y=692]" x="927" y="692" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=1095,y=984]" x="1095" y="984" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=917,y=627]" x="917" y="627" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=733,y=715]" x="733" y="715" type="Seconday" fixed="false"     />
+		<vertex id="java.awt.Point[x=1141,y=694]" x="1141" y="694" type="End" fixed="false"     />
+		<vertex id="java.awt.Point[x=794,y=688]" x="794" y="688" type="Primary" fixed="false"     />
+		<vertex id="java.awt.Point[x=978,y=580]" x="978" y="580" type="End" fixed="false"     />
+	</vertices>
+	<edges>
+		<edge vertex1="java.awt.Point[x=515,y=685]" vertex2="java.awt.Point[x=76,y=664]" />
+		<edge vertex1="java.awt.Point[x=515,y=685]" vertex2="java.awt.Point[x=547,y=680]" />
+		<edge vertex1="java.awt.Point[x=547,y=680]" vertex2="java.awt.Point[x=502,y=659]" />
+		<edge vertex1="java.awt.Point[x=502,y=659]" vertex2="java.awt.Point[x=499,y=601]" />
+		<edge vertex1="java.awt.Point[x=502,y=659]" vertex2="java.awt.Point[x=429,y=604]" />
+		<edge vertex1="java.awt.Point[x=429,y=604]" vertex2="java.awt.Point[x=183,y=447]" />
+		<edge vertex1="java.awt.Point[x=429,y=604]" vertex2="java.awt.Point[x=410,y=499]" />
+		<edge vertex1="java.awt.Point[x=547,y=680]" vertex2="java.awt.Point[x=604,y=685]" />
+		<edge vertex1="java.awt.Point[x=604,y=685]" vertex2="java.awt.Point[x=585,y=613]" />
+		<edge vertex1="java.awt.Point[x=585,y=613]" vertex2="java.awt.Point[x=617,y=557]" />
+		<edge vertex1="java.awt.Point[x=585,y=613]" vertex2="java.awt.Point[x=445,y=274]" />
+		<edge vertex1="java.awt.Point[x=604,y=685]" vertex2="java.awt.Point[x=635,y=686]" />
+		<edge vertex1="java.awt.Point[x=635,y=686]" vertex2="java.awt.Point[x=757,y=692]" />
+		<edge vertex1="java.awt.Point[x=757,y=692]" vertex2="java.awt.Point[x=733,y=715]" />
+		<edge vertex1="java.awt.Point[x=733,y=715]" vertex2="java.awt.Point[x=719,y=761]" />
+		<edge vertex1="java.awt.Point[x=733,y=715]" vertex2="java.awt.Point[x=653,y=759]" />
+		<edge vertex1="java.awt.Point[x=653,y=759]" vertex2="java.awt.Point[x=606,y=728]" />
+		<edge vertex1="java.awt.Point[x=653,y=759]" vertex2="java.awt.Point[x=595,y=801]" />
+		<edge vertex1="java.awt.Point[x=595,y=801]" vertex2="java.awt.Point[x=322,y=999]" />
+		<edge vertex1="java.awt.Point[x=595,y=801]" vertex2="java.awt.Point[x=598,y=868]" />
+		<edge vertex1="java.awt.Point[x=757,y=692]" vertex2="java.awt.Point[x=784,y=686]" />
+		<edge vertex1="java.awt.Point[x=784,y=686]" vertex2="java.awt.Point[x=782,y=664]" />
+		<edge vertex1="java.awt.Point[x=782,y=664]" vertex2="java.awt.Point[x=824,y=627]" />
+		<edge vertex1="java.awt.Point[x=782,y=664]" vertex2="java.awt.Point[x=746,y=591]" />
+		<edge vertex1="java.awt.Point[x=746,y=591]" vertex2="java.awt.Point[x=785,y=499]" />
+		<edge vertex1="java.awt.Point[x=746,y=591]" vertex2="java.awt.Point[x=714,y=538]" />
+		<edge vertex1="java.awt.Point[x=714,y=538]" vertex2="java.awt.Point[x=545,y=236]" />
+		<edge vertex1="java.awt.Point[x=714,y=538]" vertex2="java.awt.Point[x=737,y=495]" />
+		<edge vertex1="java.awt.Point[x=784,y=686]" vertex2="java.awt.Point[x=794,y=688]" />
+		<edge vertex1="java.awt.Point[x=794,y=688]" vertex2="java.awt.Point[x=915,y=692]" />
+		<edge vertex1="java.awt.Point[x=915,y=692]" vertex2="java.awt.Point[x=942,y=860]" />
+		<edge vertex1="java.awt.Point[x=942,y=860]" vertex2="java.awt.Point[x=982,y=1235]" />
+		<edge vertex1="java.awt.Point[x=942,y=860]" vertex2="java.awt.Point[x=901,y=897]" />
+		<edge vertex1="java.awt.Point[x=915,y=692]" vertex2="java.awt.Point[x=919,y=695]" />
+		<edge vertex1="java.awt.Point[x=919,y=695]" vertex2="java.awt.Point[x=927,y=692]" />
+		<edge vertex1="java.awt.Point[x=927,y=692]" vertex2="java.awt.Point[x=1095,y=984]" />
+		<edge vertex1="java.awt.Point[x=927,y=692]" vertex2="java.awt.Point[x=1039,y=699]" />
+		<edge vertex1="java.awt.Point[x=1039,y=699]" vertex2="java.awt.Point[x=1110,y=393]" />
+		<edge vertex1="java.awt.Point[x=1039,y=699]" vertex2="java.awt.Point[x=1050,y=697]" />
+		<edge vertex1="java.awt.Point[x=1050,y=697]" vertex2="java.awt.Point[x=1061,y=690]" />
+		<edge vertex1="java.awt.Point[x=1061,y=690]" vertex2="java.awt.Point[x=1333,y=515]" />
+		<edge vertex1="java.awt.Point[x=1061,y=690]" vertex2="java.awt.Point[x=1141,y=694]" />
+		<edge vertex1="java.awt.Point[x=1050,y=697]" vertex2="java.awt.Point[x=1051,y=698]" />
+		<edge vertex1="java.awt.Point[x=1051,y=698]" vertex2="java.awt.Point[x=1282,y=892]" />
+		<edge vertex1="java.awt.Point[x=919,y=695]" vertex2="java.awt.Point[x=917,y=662]" />
+		<edge vertex1="java.awt.Point[x=917,y=662]" vertex2="java.awt.Point[x=917,y=627]" />
+		<edge vertex1="java.awt.Point[x=917,y=627]" vertex2="java.awt.Point[x=978,y=580]" />
+		<edge vertex1="java.awt.Point[x=917,y=627]" vertex2="java.awt.Point[x=919,y=247]" />
+		<edge vertex1="java.awt.Point[x=917,y=662]" vertex2="java.awt.Point[x=890,y=636]" />
+		<edge vertex1="java.awt.Point[x=794,y=688]" vertex2="java.awt.Point[x=770,y=739]" />
+		<edge vertex1="java.awt.Point[x=770,y=739]" vertex2="java.awt.Point[x=771,y=801]" />
+		<edge vertex1="java.awt.Point[x=770,y=739]" vertex2="java.awt.Point[x=741,y=768]" />
+		<edge vertex1="java.awt.Point[x=741,y=768]" vertex2="java.awt.Point[x=614,y=1106]" />
+		<edge vertex1="java.awt.Point[x=741,y=768]" vertex2="java.awt.Point[x=749,y=841]" />
+		<edge vertex1="java.awt.Point[x=635,y=686]" vertex2="java.awt.Point[x=655,y=556]" />
+	</edges>
+</graph>
+</result>
