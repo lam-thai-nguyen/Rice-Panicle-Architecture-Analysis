@@ -4,13 +4,13 @@ import cv2
 import xml.etree.ElementTree as ET
 
 
-def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
+def generate_bbox_grains_junctions(original_img_path: str, vertex_coordinates_path: str):
     """
     Create bounding boxes for grains and junctions
 
     Args:
-        original_img_path (str): dataset/original/2_2_1_1_3_DSC09839.JPG
-        vertex_coordinates_path (str): dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr
+        original_img_path (str): dataset/original/O. glaberrima/2_2_1_1_3_DSC09839.jpg
+        vertex_coordinates_path (str): dataset/vertex_coordinates/O. glaberrima/2_2_1_1_3_DSC09839.ricepr
     """
     img = cv2.imread(original_img_path)
     
@@ -27,8 +27,6 @@ def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
         cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
     for x, y in quaternary:
         cv2.rectangle(img, pt1=(x - 10, y - 10), pt2=(x + 10, y + 10), color=(255, 0, 0), thickness=2)
-    # for x, y in end:
-    #     cv2.circle(img, (x, y), 6, (0, 0, 255), -1)
         
     # ========= Bounding boxes for grains =========
     edges = _get_edges(vertex_coordinates_path)
@@ -37,9 +35,10 @@ def generate_bbox_grains_junctions(original_img_path, vertex_coordinates_path):
         if [x2, y2] in end:
             _bounding_box_grains_junctions(img, x1, y1, x2, y2)
 
-    save_path = "dataset/bbox/grains_junctions"
-    index = len("dataset/original/")
-    cv2.imwrite(save_path + "/" + original_img_path[index:], img)
+    # info = O. glaberrima/2_2_1_1_3_DSC09839.jpg
+    info = '/'.join(original_img_path.split('/')[-2:])
+    save_path = "dataset/bbox/grains_junctions/" + info
+    cv2.imwrite(save_path, img)
     
     
 def generate_bbox_pb(original_img_path, vertex_coordinates_path):
