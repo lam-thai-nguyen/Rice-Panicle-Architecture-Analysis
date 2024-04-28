@@ -1,6 +1,7 @@
 import pandas as pd
 from json2binary import json2binary
 from bbox import generate_bbox_grains_junctions, generate_bbox_pb
+from thin import thin
 
 
 class RicePanicle:
@@ -18,6 +19,7 @@ class RicePanicle:
         self.original_path = None
         self.json_path = None
         self.xml_path = None
+        self.binary_path = None
         self.code = None
         self.accession_id = None
         self.assay_nb = None
@@ -32,23 +34,25 @@ class RicePanicle:
         elif file_path.endswith('json'):
             self._process_json_file(file_path)
 
-    def _process_image_file(self, file_path):
+    def _process_image_file(self, file_path) -> None:
         self.original_path = file_path
         info = self.original_path.split('/')[-1].split('_')
         self._extract_info(info, image_file=True)
         self.code = self.original_path.split('/')[-1][:-4]
         self.json_path = f"dataset/annotated/annotated-{self.user}/{self.species}/{self.code}.json"
         self.xml_path = f"dataset/vertex_coordinates/{self.species}/{self.code}.ricepr"
+        self.binary_path = self.json_path[:-4] + "jpg"
 
-    def _process_json_file(self, file_path):
+    def _process_json_file(self, file_path) -> None:
         self.json_path = file_path
         info = self.json_path.split('/')[-1].split('_')
         self._extract_info(info, json_file=True)
         self.code = self.json_path.split('/')[-1][:-5]
         self.original_path = f"dataset/original/{self.species}/{self.code}.jpg"
         self.xml_path = f"dataset/vertex_coordinates/{self.species}/{self.code}.ricepr"
+        self.binary_path = self.json_path[:-4] + "jpg"
 
-    def _extract_info(self, info, image_file=False, json_file=False):
+    def _extract_info(self, info, image_file=False, json_file=False) -> None:
         if image_file:
             index = 4
         elif json_file:
@@ -73,21 +77,27 @@ class RicePanicle:
         print(f"Original path: {self.original_path}")
         print(f"json path: {self.json_path}")
         print(f"XML path: {self.xml_path}")
+        print(f"Binary path: {self.binary_path}")
         print("=======================")
         
     def json2binary(self) -> None:
         json2binary(self.json_path)
         
-    def generate_bbox_grains_junctions(self):
+    def generate_bbox_grains_junctions(self) -> None:
         generate_bbox_grains_junctions(self.original_path, self.xml_path)
         
-    def generate_bbox_pb(self):
+    def generate_bbox_pb(self) -> None:
         generate_bbox_pb(self.original_path, self.xml_path)
+        
+    def thin(self, method: str) -> None:
+        thin(self.binary_path, method)
+        
         
 
 if __name__ == "__main__":
-    rice_panicle = RicePanicle('T', "dataset/annotated/annotated-T/O. sativa/13_2_1_2_1_DSC01495.json")
-    rice_panicle.return_info()
+    rice_panicle = RicePanicle('T', "dataset/annotated/annotated-T/O. glaberrima/53_2_1_1_1_DSC01741.jpg")
+    # rice_panicle.return_info()
     # rice_panicle.generate_bbox_grains_junctions()
     # rice_panicle.generate_bbox_pb()
     # rice_panicle.json2binary()
+    rice_panicle.thin('zhang')
