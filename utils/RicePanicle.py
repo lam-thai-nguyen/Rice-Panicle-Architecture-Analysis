@@ -1,7 +1,9 @@
 import pandas as pd
+import numpy as np
 from json2binary import json2binary
 from bbox import generate_bbox_grains_junctions, generate_bbox_pb
 from thin import thin
+from cluster import cluster
 
 
 class RicePanicle:
@@ -28,6 +30,7 @@ class RicePanicle:
         self.panicle_nb = None
         self.image_name = None
         self.species = None
+        self.skeleton = None
         
         if file_path.endswith('jpg'):
             self._process_image_file(file_path)
@@ -89,15 +92,31 @@ class RicePanicle:
     def generate_bbox_pb(self) -> None:
         generate_bbox_pb(self.original_path, self.xml_path)
         
-    def thin(self, method: str) -> None:
-        thin(self.binary_path, method)
+    def thin(self, method: str = 'zhang') -> None:
+        try:
+            self.skeleton = thin(self.binary_path, method)
+        except AttributeError:
+            print("Binary image not found")
+            return None
+            
+    def cluster(self, method) -> None:
+        if isinstance(self.skeleton, np.ndarray):
+            cluster(self.skeleton, method)
+        else:
+            print("Skeleton not found")
+            return None
         
+    def thin_cluster(self, thin_method: str, cluster_method: str) -> None:
+        self.thin(thin_method)
+        self.cluster(cluster_method)
         
 
 if __name__ == "__main__":
-    rice_panicle = RicePanicle('T', "dataset/annotated/annotated-T/O. glaberrima/53_2_1_1_1_DSC01741.jpg")
-    # rice_panicle.return_info()
+    rice_panicle = RicePanicle(user='T', file_path="dataset/annotated/annotated-T/O. sativa/42_2_1_1_2_DSC01719.jpg")
+    rice_panicle.return_info()
     # rice_panicle.generate_bbox_grains_junctions()
     # rice_panicle.generate_bbox_pb()
     # rice_panicle.json2binary()
-    rice_panicle.thin('zhang')
+    # rice_panicle.thin(method='zhang')
+    # rice_panicle.cluster(method='cn')
+    # rice_panicle.thin_cluster(thin_method='zhang', cluster_method='cn')
