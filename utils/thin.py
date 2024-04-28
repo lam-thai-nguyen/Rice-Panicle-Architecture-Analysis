@@ -9,7 +9,7 @@ def thin(binary_path: str, method: str) -> np.array:
 
     ## Returns:
 
-    the skeleton as np.array - shape = (512, 512)
+    the skeleton as np.ndarray - shape = (512, 512)
     """
     img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     if method == "zhang":
