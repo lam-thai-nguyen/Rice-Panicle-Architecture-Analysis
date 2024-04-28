@@ -3,13 +3,13 @@ import numpy as np
 from skimage.morphology import skeletonize
 
 
-def thin(binary_path: str, method: str) -> None:
+def thin(binary_path: str, method: str) -> np.array:
     """
     method takes 'zhang' or 'gradient'
 
     ## Returns:
 
-    the skeleton as np.array
+    the skeleton as np.array - shape = (512, 512)
     """
     img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     if method == "zhang":
@@ -20,7 +20,6 @@ def thin(binary_path: str, method: str) -> None:
     cv2.imshow("RESULT", skeleton)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    save_path = ""
 
     return skeleton
 
