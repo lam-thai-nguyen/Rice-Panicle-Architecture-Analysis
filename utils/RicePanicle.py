@@ -112,11 +112,6 @@ class RicePanicle:
         
 
 if __name__ == "__main__":
-    rice_panicle = RicePanicle(user='T', file_path="dataset/annotated/annotated-T/O. sativa/42_2_1_1_2_DSC01719.jpg")
-    rice_panicle.return_info()
-    # rice_panicle.generate_bbox_grains_junctions()
-    # rice_panicle.generate_bbox_pb()
-    # rice_panicle.json2binary()
-    # rice_panicle.thin(method='zhang')
-    # rice_panicle.cluster(method='cn')
-    # rice_panicle.thin_cluster(thin_method='zhang', cluster_method='cn')
+    rice_panicle = RicePanicle(user='T', file_path="dataset/annotated/annotated-T/O. glaberrima/2_2_1_1_1_DSC09838.json")
+    # rice_panicle.return_info()
+    rice_panicle.json2binary()
