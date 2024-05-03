@@ -1,11 +1,10 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize, binary_erosion
 from thin_plotting import plot_preprocess, plot_skeleton, plot_thin
 
 
-def thin(binary_path: str, method: str, _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]:
+def thin(binary_path: str, method: str = 'zhang', _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]:
     """
     ## Arguments:
     method takes 'zhang' or 'gradient'
@@ -15,7 +14,10 @@ def thin(binary_path: str, method: str, _plot_bin_img=False, _plot_skeleton=Fals
 
     ## Returns:
 
-    the skeleton as np.ndarray - shape = (512, 512)
+    raw_skeleton, shape = (512, 512)
+    processed_skeleton, shape = (512, 512) after preprocessing
+    raw_bin_img , shape = (512, 512) 
+    processed_bin_img , shape = (512, 512) after preprocessing
     """
     raw_bin_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     
@@ -27,7 +29,7 @@ def thin(binary_path: str, method: str, _plot_bin_img=False, _plot_skeleton=Fals
     if _plot_result:
         plot_thin(raw_bin_img, processed_bin_img, raw_skeleton, processed_skeleton)
 
-    return raw_skeleton, processed_skeleton
+    return raw_skeleton, processed_skeleton, raw_bin_img, processed_bin_img
 
 
 def _zhang_suen(bin_img: np.ndarray, _plot_bin_img=False, _plot_skeleton=False) -> list[np.ndarray]:
@@ -63,11 +65,11 @@ def _preprocess(bin_img: np.ndarray, _plot_bin_img=False) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, 1)
+    # thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, 1)
 
     # Erosion needed examples
-    # _zhang_suen("dataset/annotated/annotated-K/O. glaberrima/56_2_1_2_3_DSC01608.jpg")
-    # _zhang_suen("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg")
+    # thin("dataset/annotated/annotated-K/O. glaberrima/56_2_1_2_3_DSC01608.jpg", 'zhang', 1, 1, 0)
+    thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", 'zhang', 1, 1, 0)
 
     # Dilation needed examples
     # "dataset/annotated/annotated-K/O. sativa/38_2_1_3_1_DSC09528_.jpg"
