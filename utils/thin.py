@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize, binary_erosion
-from thin_utils import plot_preprocess, plot_skeleton, plot_thin
+from thin_plotting import plot_preprocess, plot_skeleton, plot_thin
 
 
 def thin(binary_path: str, method: str, _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]:
