@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize, binary_erosion
 
 
@@ -29,35 +30,43 @@ def thin(binary_path: str, method: str) -> np.ndarray:
 
 def _zhang_suen(binary_path: str) -> np.ndarray:
     img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
-
-    cv2.imshow("original", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    _, img_threshold = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-    # eroded = binary_erosion(img_threshold, np.ones((2, 2), np.uint8)).astype(np.uint8) * 255
-
-    # cv2.imshow('eroded', eroded)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-    skeleton = skeletonize(img_threshold, method="zhang").astype(np.uint8) * 255
+    processed = _preprocess(img, 1)
+    skeleton = skeletonize(processed, method="zhang").astype(np.uint8) * 255
     return skeleton
 
 
 def _gradient_based_optimization(binary_path: str) -> np.ndarray:
     img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
-    _, img_threshold = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-    eroded = (binary_erosion(img_threshold, np.ones((2, 2), np.uint8)).astype(np.uint8) * 255)
+    processed = _preprocess(img)
     ...
 
-def _preprocess(binary_path: str) -> np.ndarray:
+def _preprocess(img: np.ndarray, plot_result=False) -> np.ndarray:
     """
-    threshold, erosion, dilation to remove noise
+    threshold, erosion, dilation, opening, closing to remove noise
     """
-    img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     _, img_threshold = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    processed = img_threshold
+    
+    if plot_result:
+        _plot_preprocess(img, processed)
+        
+    return processed
 
+
+def _plot_preprocess(pre_img: np.ndarray, post_img: np.ndarray) -> None:
+    _, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
+    ax1.imshow(pre_img, cmap='gray')
+    ax1.set_title("Original")
+    ax1.axis('off')
+    
+    ax2.imshow(post_img, cmap='gray')
+    ax2.set_title("Processed")
+    ax2.axis('off')
+    
+    plt.suptitle("PREPROCESSING")
+    plt.show()
+    return None
+    
 
 if __name__ == "__main__":
     thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang")
