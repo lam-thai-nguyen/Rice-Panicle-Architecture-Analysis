@@ -18,6 +18,7 @@ Collaborators: **Lam Thai Nguyen** and **Trung Kien Pham**
     - **grains_junction**s: bounding boxes results for grains/junctions detection.
     - **primary_branches**: bounding boxes results for primary branches (Pb) detection.
 - **utils**: tools/utils. <[HOW TO USE UTILS](#basic-operations)>
+- **results**: for reference purposes, knowing what each procedure produces.
 
 ## Instructions - Basic Operations<a id="basic-operations"></a>
 
