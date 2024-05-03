@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from json2binary import json2binary
 from bbox import generate_bbox_grains_junctions, generate_bbox_pb
 from thin import thin
@@ -30,7 +31,8 @@ class RicePanicle:
         self.panicle_nb = None
         self.image_name = None
         self.species = None
-        self.skeleton = None
+        self.skeleton: np.ndarray = None
+        self.binary: np.ndarray = None
         
         if file_path.endswith('jpg'):
             self._process_image_file(file_path)
@@ -92,26 +94,58 @@ class RicePanicle:
     def generate_bbox_pb(self) -> None:
         generate_bbox_pb(self.original_path, self.xml_path)
         
-    def thin(self, method: str = 'zhang') -> None:
+    def thin(self, method: str = 'zhang', _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]:
+        """
+        method = {zhang, gradient}
+        """
         try:
-            self.skeleton = thin(self.binary_path, method)
+            _, self.skeleton, _, self.binary = thin(self.binary_path, method, _plot_bin_img, _plot_skeleton, _plot_result)
         except AttributeError:
             print("Binary image not found")
-            return None
+            return 
+        
+        return self.skeleton, self.binary
             
     def cluster(self, method) -> None:
+        """
+        method = {cn, }
+        """
         if isinstance(self.skeleton, np.ndarray):
             cluster(self.skeleton, method)
         else:
-            print("Skeleton not found")
+            print("ERROR! Skeleton not found.")
             return None
         
     def thin_cluster(self, thin_method: str, cluster_method: str) -> None:
-        self.thin(thin_method)
+        """
+        thin_method = {zhang, gradient}
+        cluster_method = {cn, }
+        """
+        self.skeleton, self.binary = self.thin(thin_method)
         self.cluster(cluster_method)
+        
+    def imshow_binary(self):
+        if self.binary is None:
+            print("ERROR! Processed binary not found.")
+            return
+        plt.figure(figsize=(7, 7))
+        plt.imshow(self.binary, cmap='gray')
+        plt.axis('off')
+        plt.title("Binary Image")
+        plt.show()
+        
+    def imshow_skeleton(self):
+        if self.skeleton is None:
+            print("ERROR! Skeleton not found.")
+            return
+        plt.figure(figsize=(7, 7))
+        plt.imshow(self.skeleton, cmap='gray')
+        plt.axis('off')
+        plt.title("Skeleton Image")
+        plt.show()
         
 
 if __name__ == "__main__":
-    rice_panicle = RicePanicle(user='T', file_path="dataset/annotated/annotated-T/O. glaberrima/2_2_1_1_1_DSC09838.json")
+    rice_panicle = RicePanicle(user='T', file_path="dataset/annotated/annotated-T/O. glaberrima/2_2_1_2_3_DSC09844.json")
     # rice_panicle.return_info()
     rice_panicle.json2binary()
