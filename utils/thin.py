@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize, binary_erosion
 
 
-def thin(binary_path: str, method: str, plot_result=False) -> np.ndarray:
+def thin(binary_path: str, method: str, plot_result=False) -> list[np.ndarray]:
     """
     ## Arguments:
     method takes 'zhang' or 'gradient'
@@ -30,12 +30,13 @@ def thin(binary_path: str, method: str, plot_result=False) -> np.ndarray:
     if plot_result:
         _plot_thin(raw_bin_img, processed_bin_img, raw_skeleton, processed_skeleton)
 
-    return processed_skeleton
+    return raw_skeleton, processed_skeleton
 
 
 def _zhang_suen(bin_img: np.ndarray) -> list[np.ndarray]:
-    processed_bin_img = _preprocess(bin_img)
-    raw_skeleton = skeletonize(bin_img, method="zhang").astype(np.uint8) * 255
+    _, img_threshold = cv2.threshold(bin_img, 127, 255, cv2.THRESH_BINARY)
+    processed_bin_img = _preprocess(img_threshold)
+    raw_skeleton = skeletonize(img_threshold, method="zhang").astype(np.uint8) * 255
     processed_skeleton = skeletonize(processed_bin_img, method="zhang").astype(np.uint8) * 255
     return raw_skeleton, processed_skeleton, processed_bin_img
 
@@ -45,10 +46,9 @@ def _gradient_based_optimization(bin_img: np.ndarray) -> np.ndarray:
 
 def _preprocess(bin_img: np.ndarray, plot_result=False) -> np.ndarray:
     """
-    threshold, erosion, dilation, opening, closing to remove noise
+    erosion, dilation, opening, closing to remove noise
     """
-    _, img_threshold = cv2.threshold(bin_img, 127, 255, cv2.THRESH_BINARY)
-    processed_bin_img = img_threshold
+    processed_bin_img = bin_img
     
     if plot_result:
         _plot_preprocess(bin_img, processed_bin_img)
