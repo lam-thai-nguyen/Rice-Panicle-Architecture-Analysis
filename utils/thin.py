@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from skimage.morphology import skeletonize, binary_erosion
+from skimage.morphology import skeletonize, square, binary_erosion, binary_dilation
 from thin_plotting import plot_preprocess, plot_skeleton, plot_thin
 
 
@@ -54,9 +54,11 @@ def _gradient_based_optimization(bin_img: np.ndarray, _plot_bin_img=False, _plot
 
 def _preprocess(bin_img: np.ndarray, _plot_bin_img=False) -> np.ndarray:
     """
-    erosion, dilation, opening, closing to remove noise
+    Preprocessing method: Erosion OR Dilation -> Erosion x 2
     """
-    processed_bin_img = bin_img
+    strel = square(2)
+    
+    processed_bin_img = binary_erosion(bin_img, footprint=strel)
     
     if _plot_bin_img:
         plot_preprocess(bin_img, processed_bin_img)
@@ -65,12 +67,13 @@ def _preprocess(bin_img: np.ndarray, _plot_bin_img=False) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    # thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, 1)
+    thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, 1)
 
     # Erosion needed examples
     # thin("dataset/annotated/annotated-K/O. glaberrima/56_2_1_2_3_DSC01608.jpg", 'zhang', 1, 1, 0)
-    thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", 'zhang', 1, 1, 0)
+    # thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", 'zhang', 1, 1, 0)
 
     # Dilation needed examples
-    # "dataset/annotated/annotated-K/O. sativa/38_2_1_3_1_DSC09528_.jpg"
-    # "dataset/annotated/annotated-K/O. sativa/39_2_1_1_3_DSC09538_.jpg"
+    # thin("dataset/annotated/annotated-K/O. sativa/38_2_1_3_1_DSC09528_.jpg", 'zhang', 1, 1, 0)
+    # thin("dataset/annotated/annotated-K/O. sativa/39_2_1_1_3_DSC09538_.jpg", 'zhang', 1, 1, 0)
+    
