@@ -20,7 +20,7 @@ def plot_preprocess(raw_bin_img: np.ndarray, processed_bin_img: np.ndarray, info
         os.makedirs(directory)
 
     # Save the plot
-    plt.savefig(os.path.join(directory, f"binary_{file_name}"))
+    plt.savefig(os.path.join(directory, f"binary.jpg"))
     plt.show()
     
 
@@ -42,7 +42,7 @@ def plot_skeleton(raw_skeleton: np.ndarray, processed_skeleton: np.ndarray, info
         os.makedirs(directory)
 
     # Save the plot
-    plt.savefig(os.path.join(directory, f"skeleton_{file_name}"))
+    plt.savefig(os.path.join(directory, f"skeleton.jpg"))
     plt.show()
     
 
