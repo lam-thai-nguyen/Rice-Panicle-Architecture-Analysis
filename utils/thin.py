@@ -61,16 +61,32 @@ def _preprocess(bin_img: np.ndarray, info: list[str], _plot_bin_img=False) -> np
     """
     Preprocessing method: Erosion OR Dilation -> Erosion x 2
     """
+    _, model = info
     strel = square(2)
     
-    # annotated
-    # processed_bin_img = binary_erosion(bin_img, footprint=strel)
+    if model == "annotated":
+        processed_bin_img = binary_erosion(bin_img, footprint=strel)
     
-    # RUC-Net
-    processed_bin_img = binary_dilation(bin_img, footprint=strel)
-    processed_bin_img = binary_dilation(processed_bin_img, footprint=strel)
-    processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
-    processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
+    elif model == "ACS":
+        ...
+        
+    elif model == "DEEPCRACK":
+        ...
+        
+    elif model == "RUC_NET":
+        processed_bin_img = binary_dilation(bin_img, footprint=strel)
+        processed_bin_img = binary_dilation(processed_bin_img, footprint=strel)
+        processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
+        processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
+        
+    elif model == "SEGNET":
+        ...
+        
+    elif model == "U2CRACKNET":
+        ...
+        
+    elif model == "UNET":
+        ...
     
     if _plot_bin_img:
         plot_preprocess(bin_img, processed_bin_img, info=info)
