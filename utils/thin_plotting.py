@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def plot_preprocess(raw_bin_img: np.ndarray, processed_bin_img: np.ndarray) -> None:
-    _, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(15, 7))
+    _, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
     ax1.imshow(raw_bin_img, cmap='gray')
     ax1.set_title("Raw")
     ax1.axis('off')
@@ -16,7 +16,7 @@ def plot_preprocess(raw_bin_img: np.ndarray, processed_bin_img: np.ndarray) -> N
     
 
 def plot_skeleton(raw_skeleton: np.ndarray, processed_skeleton: np.ndarray) -> None:
-    _, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(15, 7))
+    _, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(16, 8))
     ax1.imshow(raw_skeleton, cmap='gray')
     ax1.set_title("Raw")
     ax1.axis('off')
