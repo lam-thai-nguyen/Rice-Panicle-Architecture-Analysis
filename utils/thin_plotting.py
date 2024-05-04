@@ -74,7 +74,7 @@ def extract_info(binary_path: str) -> list[str]:
     info = binary_path.split('/')
     file_name = info[-1]
     model = "annotated"
-    model_list = ['ACS', 'DEEPCRACK', 'RUC_NET', 'SEGNET', 'U2CRACKNEL', 'UNET']
+    model_list = ['ACS', 'DEEPCRACK', 'RUC_NET', 'SEGNET', 'U2CRACKNET', 'UNET']
     for i in info:
         if i in model_list:
             model = i
