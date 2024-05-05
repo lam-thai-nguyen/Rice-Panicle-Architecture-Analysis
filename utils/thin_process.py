@@ -11,7 +11,7 @@ def pre_process(bin_img: np.ndarray, info: list[str], _plot_bin_img=False) -> np
     strel = square(2)
     
     if model == "annotated":
-        processed_bin_img = binary_erosion(bin_img, footprint=strel)
+        pre_processed_bin_img = binary_erosion(bin_img, footprint=strel)
     
     elif model == "ACS":
         ...
@@ -20,10 +20,10 @@ def pre_process(bin_img: np.ndarray, info: list[str], _plot_bin_img=False) -> np
         ...
         
     elif model == "RUC_NET":
-        processed_bin_img = binary_dilation(bin_img, footprint=strel)
-        processed_bin_img = binary_dilation(processed_bin_img, footprint=strel)
-        processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
-        processed_bin_img = binary_erosion(processed_bin_img, footprint=strel)
+        pre_processed_bin_img = binary_dilation(bin_img, footprint=strel)
+        pre_processed_bin_img = binary_dilation(pre_processed_bin_img, footprint=strel)
+        pre_processed_bin_img = binary_erosion(pre_processed_bin_img, footprint=strel)
+        pre_processed_bin_img = binary_erosion(pre_processed_bin_img, footprint=strel)
         
     elif model == "SEGNET":
         ...
@@ -35,9 +35,9 @@ def pre_process(bin_img: np.ndarray, info: list[str], _plot_bin_img=False) -> np
         ...
     
     if _plot_bin_img:
-        plot_preprocess(bin_img, processed_bin_img, info=info)
+        plot_preprocess(bin_img, pre_processed_bin_img, info=info)
         
-    return processed_bin_img
+    return pre_processed_bin_img
 
 
 def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
