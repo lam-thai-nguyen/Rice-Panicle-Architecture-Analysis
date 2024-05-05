@@ -30,9 +30,9 @@ Collaborators: **Lam Thai Nguyen** and **Trung Kien Pham**
   - `rice_panicle.json2binary() -> None` turns a json file containing the annotation result to a binary image under the same name.
   - `rice_panicle.generate_bbox_grains_junctions() -> None` does what the name says.
   - `rice_panicle.generate_bbox_pb() -> None` does what the name says.
-  - `rice_panicle.thin(method: str = 'zhang', _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]` uses specified method *{zhang, gradient}* to thin/skeletonize the binary image.
-  - `rice_panicle.cluster(method) -> None` finds the junctions in the skeleton image. Will take no effect when skeleton is not created yet.
-  - `rice_panicle.thin_cluster(thin_method: str, cluster_method: str) -> None` uses the specified algorithm combination to find the junctions in the skeleton image. Will take no effect when skeleton is not created yet.
+  - `thin(self, method: str, _pre_process: bool, _post_process: bool, **kwargs) -> np.ndarray` uses specified method *{zhang, gradient}* to thin/skeletonize the binary image along with *pre-processing and post-processing*.
+  - `cluster(self, method: str) -> np.ndarray` finds the junctions in the skeleton image. Will take no effect when skeleton is not created yet.
+  - `thin_cluster(self, thin_method: str, _pre_process: bool, _post_process: bool, cluster_method: str, **kwargs) -> list[np.ndarray]`: a mix between thin() and cluster().
   - `rice_panicle.imshow_binary() -> None` -> creates a figure of the processed binary image. Will only take effect IF 1) is created and 2) is processed.
   - `rice_panicle.imshow_skeleton() -> None` -> creates a figure of the processed skeleton image. Will only take effect IF 1) is created and 2) is processed.
 - **STEP 3**: Undergoing...
