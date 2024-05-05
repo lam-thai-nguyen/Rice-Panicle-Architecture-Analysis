@@ -27,7 +27,6 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
         - _plot_prune=False
     - When both are True
         - _plot_result=False
-
     
     ## Returns:
     - skeleton (np.ndarray)
