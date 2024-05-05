@@ -147,7 +147,7 @@ class RicePanicle:
         else:
             raise MissingRequiredFile(">> Skeleton not found <<")
         
-    def thin_cluster(self, thin_method: str, _pre_process: bool, _post_process: bool, cluster_method: str, **kwargs) -> None:
+    def thin_cluster(self, thin_method: str, _pre_process: bool, _post_process: bool, cluster_method: str, **kwargs) -> list[np.ndarray]:
         """
         ## Description
         - Perform <thin_method> thinning and <cluster_method> method.
