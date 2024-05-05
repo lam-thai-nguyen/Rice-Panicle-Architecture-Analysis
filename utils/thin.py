@@ -7,17 +7,19 @@ from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_inf
 def thin(binary_path: str, method: str = 'zhang', _plot_bin_img=False, _plot_skeleton=False, _plot_result=False) -> list[np.ndarray]:
     """
     ## Arguments:
-    method takes 'zhang' or 'gradient'
+    
+    - method takes 'zhang' or 'gradient'
 
     ## Example
-    binary_path = 'dataset/annotated/annotated-T/O. glaberrima/2_2_1_1_3_DSC09839.jpg'
+    
+    - binary_path = 'dataset/annotated/annotated-T/O. glaberrima/2_2_1_1_3_DSC09839.jpg'
 
     ## Returns:
 
-    raw_skeleton, shape = (512, 512)
-    processed_skeleton, shape = (512, 512) after preprocessing
-    raw_bin_img , shape = (512, 512) 
-    processed_bin_img , shape = (512, 512) after preprocessing
+    - raw_skeleton, shape = (512, 512)
+    - processed_skeleton, shape = (512, 512) after preprocessing
+    - raw_bin_img , shape = (512, 512) 
+    - processed_bin_img , shape = (512, 512) after preprocessing
     """
     file_name, model = extract_info(binary_path)
     
