@@ -10,7 +10,7 @@ def plot_preprocess(raw_bin_img: np.ndarray, processed_bin_img: np.ndarray, info
     ax1.axis('off')
     
     ax2.imshow(processed_bin_img, cmap='gray')
-    ax2.set_title("Processed")
+    ax2.set_title("Pre-processed")
     ax2.axis('off')
     
     plt.suptitle("PREPROCESSING")
@@ -32,7 +32,7 @@ def plot_skeleton(raw_skeleton: np.ndarray, processed_skeleton: np.ndarray, info
     ax1.axis('off')
     
     ax2.imshow(processed_skeleton, cmap='gray')
-    ax2.set_title("Processed")
+    ax2.set_title("Pre-processed")
     ax2.axis('off')
     
     plt.suptitle("PREPROCESSING")
@@ -55,7 +55,7 @@ def plot_thin(raw_bin_img: np.ndarray, processed_bin_img, raw_skeleton: np.ndarr
     ax1.axis('off')
     
     ax2.imshow(processed_bin_img, cmap='gray')
-    ax2.set_title("Processed binary")
+    ax2.set_title("Pre-processed binary")
     ax2.axis('off')
     
     ax3.imshow(raw_skeleton, cmap='gray')
@@ -63,7 +63,7 @@ def plot_thin(raw_bin_img: np.ndarray, processed_bin_img, raw_skeleton: np.ndarr
     ax3.axis('off')
 
     ax4.imshow(processed_skeleton, cmap='gray')
-    ax4.set_title("Processed skeleton")
+    ax4.set_title("Pre-processed skeleton")
     ax4.axis('off')
     
     plt.suptitle("THINNING")
