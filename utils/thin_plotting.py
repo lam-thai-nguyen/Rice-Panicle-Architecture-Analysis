@@ -23,6 +23,7 @@ def plot_preprocess(raw_bin_img: np.ndarray, pre_processed_bin_img: np.ndarray, 
     ax2.set_title("Pre-processed")
     ax2.axis("off")
 
+    plt.rc('figure', titlesize=28)
     plt.suptitle("PREPROCESSING")
 
     # Save the plot
@@ -54,6 +55,7 @@ def plot_skeleton(raw_skeleton: np.ndarray, pre_processed_skeleton: np.ndarray, 
     ax2.set_title("Pre-processed")
     ax2.axis("off")
 
+    plt.rc('figure', titlesize=28)
     plt.suptitle("PREPROCESSING")
 
     # Save the plot
@@ -98,6 +100,7 @@ def plot_prune(raw_skeleton: np.ndarray, post_processed_skeleton: np.ndarray, **
     ax2.axis("off")
     ax2.set_title("Pruned skeleton")
 
+    plt.rc('figure', titlesize=28)
     plt.suptitle("POST-PROCESSING")
 
     # Save the plot
@@ -107,8 +110,6 @@ def plot_prune(raw_skeleton: np.ndarray, post_processed_skeleton: np.ndarray, **
             os.makedirs(directory)
         plt.savefig(os.path.join(directory, f"skeleton.jpg"))
     plt.show()
-
-
 
 
 def plot_thin(
@@ -147,5 +148,7 @@ def plot_thin(
     ax6.set_title("Post-processed skeleton")
     ax6.axis("off")
 
+    plt.rc('figure', titlesize=28)
     plt.suptitle("THINNING")
+    plt.subplots_adjust(wspace=0.1, hspace=0.2)
     plt.show()
