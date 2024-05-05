@@ -37,24 +37,24 @@ def thin(binary_path: str, method: str = 'zhang', _plot_bin_img=False, _plot_ske
     return raw_skeleton, pre_processed_skeleton, raw_bin_img, pre_processed_bin_img
 
 
-def _zhang_suen(bin_img: np.ndarray, info: list[str], _plot_bin_img=False, _plot_skeleton=False) -> list[np.ndarray]:
+def _zhang_suen(bin_img: np.ndarray) -> np.ndarray:
     """
-    info: [file_name, model]
+    ## Description
+    - Perform Z.S. thinning method on a binary image
+    
+    ## Arguments
+    - bin_img (np.ndarray)
+    
+    ## Returns 
+    - skeleton (np.ndarray)
     """
     # Thresholding
     _, img_threshold = cv2.threshold(bin_img, 127, 255, cv2.THRESH_BINARY)
     
-    # Preprocessing binary image 
-    pre_processed_bin_img = pre_process(img_threshold, info=info, _plot_bin_img=_plot_bin_img)
-    
     # Extracting skeletons
-    raw_skeleton = skeletonize(img_threshold, method="zhang").astype(np.uint8) * 255
-    pre_processed_skeleton = skeletonize(pre_processed_bin_img, method="zhang").astype(np.uint8) * 255
+    skeleton = skeletonize(img_threshold, method="zhang").astype(np.uint8) * 255
     
-    if _plot_skeleton:
-        plot_skeleton(raw_skeleton, pre_processed_skeleton, info=info)
-        
-    return raw_skeleton, pre_processed_skeleton, pre_processed_bin_img
+    return skeleton
 
 
 def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin_img=False, _plot_skeleton=False) -> list[np.ndarray]:
