@@ -11,7 +11,7 @@ def pre_process(bin_img: np.ndarray, info: list[str], **kwargs) -> np.ndarray:
 
     ## Arguments
     - bin_img: (np.ndarray)
-    - info: (list[str]) [name, model]
+    - info: (list[str]) [file_name, model]
 
     ## kwargs:
     - _plot_bin_img=False
@@ -19,8 +19,12 @@ def pre_process(bin_img: np.ndarray, info: list[str], **kwargs) -> np.ndarray:
     ## Returns
     - pre_processed_bin_img
     """
+    # ================================================
     _plot_bin_img = kwargs.get("_plot_bin_img", False)
+    # ================================================
+    
     _, model = info
+    print(f"==========METHOD: <{model}> PRE-PROCESSING==========")
 
     # structuring element
     strel = square(2)
@@ -53,7 +57,7 @@ def pre_process(bin_img: np.ndarray, info: list[str], **kwargs) -> np.ndarray:
     if _plot_bin_img:
         plot_preprocess(bin_img, pre_processed_bin_img, info=info)
 
-    return pre_processed_bin_img
+    return pre_processed_bin_img.astype(np.uint8) * 255
 
 
 def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
