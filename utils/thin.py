@@ -54,15 +54,22 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
         if not _pre_process:
             skeleton = _zhang_suen(raw_bin_img)
         elif _pre_process:
+            raw_skeleton = _zhang_suen(raw_bin_img)
             pre_processed_skeleton = _zhang_suen(pre_processed_bin_img)
             skeleton = pre_processed_skeleton
             
     if method == "gradient":
-        if not _pre_process:
-            skeleton = _gradient_based_optimization(raw_bin_img)
-        elif _pre_process:
-            skeleton = _gradient_based_optimization(pre_processed_bin_img)
-
+        ...
+    
+    # VISUALIZATION (IF SPECIFIED)
+    if _pre_process:
+        if "_plot_bin_img" in kwargs and _plot_bin_img == True:
+            plot_preprocess(raw_bin_img=raw_bin_img, pre_processed_bin_img=pre_processed_bin_img)
+        if "_plot_skeleton" in kwargs and _plot_skeleton == True:
+            plot_skeleton(raw_skeleton=raw_skeleton, pre_processed_skeleton=pre_processed_skeleton)
+        if "_plot_result" in kwargs and _plot_result == True:
+            plot_thin(raw_bin_img=raw_bin_img, pre_processed_bin_img=pre_processed_bin_img, raw_skeleton=raw_skeleton, pre_processed_skeleton=pre_processed_skeleton)
+            
     # POST-PROCESSING
     if _post_process:
         if 'min_length' in kwargs:
@@ -95,7 +102,7 @@ def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin
 
 
 if __name__ == "__main__":
-    skeleton = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, min_length=0)
+    skeleton = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, _plot_bin_img=True, _plot_skeleton=True, _plot_result=False, min_length=0)
     # post_process(skeleton, 50)
     
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", 'zhang', 1, 1, 0)
