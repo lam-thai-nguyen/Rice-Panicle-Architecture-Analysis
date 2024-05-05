@@ -7,10 +7,12 @@ def cluster(skeleton: np.ndarray, method: str) -> None:
     method: {cn, ...}
     """
     if method == "cn":
-        _crossing_number(skeleton)
+        junction_img = _crossing_number(skeleton)
+        
+    return junction_img
         
     
-def _crossing_number(skeleton: np.array) -> None:
+def _crossing_number(skeleton: np.array) -> np.ndarray:
     """
     Perform crossing number
     """
@@ -54,3 +56,4 @@ def _crossing_number(skeleton: np.array) -> None:
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
+    return img_out
