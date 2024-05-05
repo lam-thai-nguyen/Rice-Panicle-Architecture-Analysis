@@ -3,56 +3,74 @@ import numpy as np
 from skimage.morphology import square, binary_erosion, binary_dilation, binary_closing, binary_opening
 from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_info
 
-def pre_process(bin_img: np.ndarray, info: list[str], _plot_bin_img=False) -> np.ndarray:
+
+def pre_process(bin_img: np.ndarray, info: list[str], **kwargs) -> np.ndarray:
     """
-    Preprocessing method: Erosion OR Dilation -> Erosion x 2
+    ## Description
+    - Preprocessing method on binary image based on info
+
+    ## Arguments
+    - bin_img: (np.ndarray)
+    - info: (list[str]) [name, model]
+
+    ## kwargs:
+    - _plot_bin_img=False
+
+    ## Returns
+    - pre_processed_bin_img
     """
+    _plot_bin_img = kwargs.get("_plot_bin_img", False)
     _, model = info
+
+    # structuring element
     strel = square(2)
-    
+
+    # Performing preprocessing
     if model == "annotated":
         pre_processed_bin_img = binary_erosion(bin_img, footprint=strel)
-    
+
     elif model == "ACS":
         ...
-        
+
     elif model == "DEEPCRACK":
         ...
-        
+
     elif model == "RUC_NET":
         pre_processed_bin_img = binary_dilation(bin_img, footprint=strel)
         pre_processed_bin_img = binary_dilation(pre_processed_bin_img, footprint=strel)
         pre_processed_bin_img = binary_erosion(pre_processed_bin_img, footprint=strel)
         pre_processed_bin_img = binary_erosion(pre_processed_bin_img, footprint=strel)
-        
+
     elif model == "SEGNET":
         ...
-        
+
     elif model == "U2CRACKNET":
         ...
-        
+
     elif model == "UNET":
         ...
-    
+
     if _plot_bin_img:
         plot_preprocess(bin_img, pre_processed_bin_img, info=info)
-        
+
     return pre_processed_bin_img
 
 
 def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
     """
-    Performs postprocessing on skeleton images to remove all branches with length shorter than branch_length
-    
+    ## Description
+    - Performs PRUNING postprocessing on a skeleton image to remove all branches with length shorter than min_length
+
     ## Arguments:
-    - skeleton_img: np.ndarray
-    - min_length: minimum number of pixels allowed that make up a branch 
-    
+    - skeleton_img: (np.ndarray)
+    - min_length: (int) minimum number of pixels allowed that make up a branch
+
     ## Returns:
     - post_processed_skeleton: All short branches are removed
     """
     raw_skeleton = np.copy(skeleton_img)
-    
+
+    # Initiating end_points
     white_px = np.argwhere(raw_skeleton > 0)
     end_points = []  # Tip of the skeleton
     for i in white_px:
@@ -60,7 +78,7 @@ def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
         neighbors = len(np.argwhere(neighbors_mat > 0)) - 1
         if neighbors == 1:
             end_points.append(tuple(i))
-    
+
     # Get coordinates of points according to their roles
     parents = {}  # parents[child] = parent
     children = []
@@ -74,32 +92,29 @@ def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
                 parents[parent] = None  # Assume junctions don't have parents
                 break
             child = parent
-            
+
     # Finding branches' paths
     branches = []
     for end_point in end_points:
         path = [end_point]
         current_point = end_point
-            # Follow parent pointers until reaching an intersection
+        
         while True:
-            parent = parents[current_point]  # Get parent of current point
+            parent = parents[current_point] 
             if parent is None:
                 break
-            path.append(parent)  # Add parent to the path
-            current_point = parent  # Update current point
-        
+            path.append(parent)
+            current_point = parent
+
         branches.append(path)
-    
+
+    # PRUNING
     for branch in branches:
         if len(branch) < min_length:
             for pts in branch:
                 raw_skeleton[pts[0], pts[1]] = 0
-                
-    cv2.imshow("a", raw_skeleton)
-    cv2.waitKey(0)  
-    cv2.destroyAllWindows()
     
-    post_processed_skeleton = raw_skeleton     
+    post_processed_skeleton = raw_skeleton
     return post_processed_skeleton
 
 def _get_parent(skeleton_img: np.ndarray, end_point: tuple, children: list[tuple]) -> tuple:
