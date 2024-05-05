@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize
-from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_info
+from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_info, plot_prune
 from thin_process import pre_process, post_process
 from CustomExceptions import MissingRequiredArgument
 
@@ -24,7 +24,8 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
         - _plot_skeleton=False
         - _plot_result=False
     - When _post_process is True
-        - min_length
+        - min_length=0
+        - _plot_prune=False
     
     ## Returns:
     - skeleton (np.ndarray)
@@ -36,6 +37,7 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
         _plot_result = kwargs.get("_plot_result", False)
     if _post_process:
         min_length = kwargs.get("min_length", 0)
+        _plot_prune = kwargs.get("_plot_prune", False)
     # ============================================
     
     # EXTRACTING INFORMATION
@@ -77,6 +79,11 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
             skeleton = post_processed_skeleton
         else:
             raise MissingRequiredArgument(">> Please specify min_length to perform Post-processing <<")
+        if "_plot_prune" in kwargs and _plot_prune == True:
+            if pre_processed_skeleton is not None:  # Post-processing on pre-processing skeleton
+                plot_prune(raw_skeleton=pre_processed_skeleton, post_processed_skeleton=post_processed_skeleton)
+            else:  # Post-processing on raw skeleton
+                plot_prune(raw_skeleton=raw_skeleton, post_processed_skeleton=post_processed_skeleton)
         
     return skeleton
 
@@ -102,10 +109,10 @@ def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin
 
 
 if __name__ == "__main__":
-    skeleton = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, _plot_bin_img=True, _plot_skeleton=True, _plot_result=False, min_length=0)
-    # post_process(skeleton, 50)
+    # skeleton = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, _plot_bin_img=True, _plot_skeleton=True, _plot_result=False, min_length=0)
     
-    # thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", 'zhang', 1, 1, 0)
+    skeleton = thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", "zhang", 1, 1, _plot_bin_img=0, _plot_skeleton=0, _plot_result=0, min_length=10, _plot_prune=1)
+    
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/39_2_1_2_3_DSC09544_.png", 'zhang', 1, 1, 0)
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/42_2_1_2_1_DSC01724.png", 'zhang', 1, 1, 0)
     
