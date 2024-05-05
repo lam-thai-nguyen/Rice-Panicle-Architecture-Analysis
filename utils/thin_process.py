@@ -24,7 +24,7 @@ def pre_process(bin_img: np.ndarray, info: list[str], **kwargs) -> np.ndarray:
     # ================================================
     
     _, model = info
-    print(f"==========METHOD: <{model}> PRE-PROCESSING==========")
+    print(f"==========PRE-PROCESSING METHOD: <{model}> ==========")
 
     # structuring element
     strel = square(2)
@@ -72,6 +72,7 @@ def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
     ## Returns:
     - post_processed_skeleton: All short branches are removed
     """
+    print(f"==========POST-PROCESSING METHOD: <PRUNING>==========")
     raw_skeleton = np.copy(skeleton_img)
 
     # Initiating end_points
