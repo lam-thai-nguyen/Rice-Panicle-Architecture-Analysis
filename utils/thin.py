@@ -27,14 +27,14 @@ def thin(binary_path: str, method: str = 'zhang', _plot_bin_img=False, _plot_ske
     raw_bin_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     
     if method == "zhang":
-        raw_skeleton, processed_skeleton, processed_bin_img = _zhang_suen(raw_bin_img, info=[file_name, model], _plot_bin_img=_plot_bin_img, _plot_skeleton=_plot_skeleton)
+        raw_skeleton, pre_processed_skeleton, pre_processed_bin_img = _zhang_suen(raw_bin_img, info=[file_name, model], _plot_bin_img=_plot_bin_img, _plot_skeleton=_plot_skeleton)
     elif method == "gradient":
-        raw_skeleton, processed_skeleton, processed_bin_img = _gradient_based_optimization(raw_bin_img)
+        raw_skeleton, pre_processed_skeleton, pre_processed_bin_img = _gradient_based_optimization(raw_bin_img)
     
     if _plot_result:
-        plot_thin(raw_bin_img, processed_bin_img, raw_skeleton, processed_skeleton)
+        plot_thin(raw_bin_img, pre_processed_bin_img, raw_skeleton, pre_processed_skeleton)
 
-    return raw_skeleton, processed_skeleton, raw_bin_img, processed_bin_img
+    return raw_skeleton, pre_processed_skeleton, raw_bin_img, pre_processed_bin_img
 
 
 def _zhang_suen(bin_img: np.ndarray, info: list[str], _plot_bin_img=False, _plot_skeleton=False) -> list[np.ndarray]:
@@ -45,16 +45,16 @@ def _zhang_suen(bin_img: np.ndarray, info: list[str], _plot_bin_img=False, _plot
     _, img_threshold = cv2.threshold(bin_img, 127, 255, cv2.THRESH_BINARY)
     
     # Preprocessing binary image 
-    processed_bin_img = pre_process(img_threshold, info=info, _plot_bin_img=_plot_bin_img)
+    pre_processed_bin_img = pre_process(img_threshold, info=info, _plot_bin_img=_plot_bin_img)
     
     # Extracting skeletons
     raw_skeleton = skeletonize(img_threshold, method="zhang").astype(np.uint8) * 255
-    processed_skeleton = skeletonize(processed_bin_img, method="zhang").astype(np.uint8) * 255
+    pre_processed_skeleton = skeletonize(pre_processed_bin_img, method="zhang").astype(np.uint8) * 255
     
     if _plot_skeleton:
-        plot_skeleton(raw_skeleton, processed_skeleton, info=info)
+        plot_skeleton(raw_skeleton, pre_processed_skeleton, info=info)
         
-    return raw_skeleton, processed_skeleton, processed_bin_img
+    return raw_skeleton, pre_processed_skeleton, pre_processed_bin_img
 
 
 def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin_img=False, _plot_skeleton=False) -> list[np.ndarray]:
@@ -62,8 +62,8 @@ def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin
 
 
 if __name__ == "__main__":
-    _, skeleton, _, _ = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 0, 0)
-    post_process(skeleton, 50)
+    _, skeleton, _, _ = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, 1)
+    # post_process(skeleton, 50)
     
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", 'zhang', 1, 1, 0)
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/39_2_1_2_3_DSC09544_.png", 'zhang', 1, 1, 0)
