@@ -100,3 +100,34 @@ def extract_info(binary_path: str) -> list[str]:
     
     return file_name, model
     
+    
+def plot_prune(raw_skeleton: np.ndarray, post_processed_skeleton: np.ndarray, **kwargs) -> None:
+    """
+    ## Description
+    - Plot raw_skeleton and post_processed_skeleton side by side
+    
+    ## kwargs:
+    - info: list[str] [file_name, model] -> specify when you want to save the figure
+    """
+    # ==============================================
+    file_name, model = kwargs.get("info", [None, None])
+    # ==============================================
+    _, [ax1, ax2] = plt.subplots(1, 2, figsize=(16, 8))
+    ax1.imshow(raw_skeleton, cmap='gray')
+    ax1.axis('off')
+    ax1.set_title("Raw skeleton")
+    
+    ax2.imshow(post_processed_skeleton, cmap='gray')
+    ax2.axis('off')
+    ax2.set_title("Pruned skeleton")
+    
+    plt.suptitle("POST-PROCESSING")
+
+    # Save the plot
+    if file_name is not None and model is not None:
+        directory = f"results/postprocess/{model}/{file_name[:-4]}"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        plt.savefig(os.path.join(directory, f"skeleton.jpg"))
+    plt.show()
+    
