@@ -22,10 +22,12 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
     - When _pre_process is True
         - _plot_bin_img=False
         - _plot_skeleton=False
-        - _plot_result=False
     - When _post_process is True
         - min_length=0
         - _plot_prune=False
+    - When both are True
+        - _plot_result=False
+
     
     ## Returns:
     - skeleton (np.ndarray)
@@ -69,8 +71,6 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
             plot_preprocess(raw_bin_img=raw_bin_img, pre_processed_bin_img=pre_processed_bin_img)
         if "_plot_skeleton" in kwargs and _plot_skeleton == True:
             plot_skeleton(raw_skeleton=raw_skeleton, pre_processed_skeleton=pre_processed_skeleton)
-        if "_plot_result" in kwargs and _plot_result == True:
-            plot_thin(raw_bin_img=raw_bin_img, pre_processed_bin_img=pre_processed_bin_img, raw_skeleton=raw_skeleton, pre_processed_skeleton=pre_processed_skeleton)
             
     # POST-PROCESSING
     if _post_process:
@@ -85,6 +85,10 @@ def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool,
             else:  # Post-processing on raw skeleton
                 plot_prune(raw_skeleton=raw_skeleton, post_processed_skeleton=post_processed_skeleton)
         
+    if _pre_process and _post_process:
+        if "_plot_result" in kwargs and _plot_result == True:
+            plot_thin(raw_bin_img=raw_bin_img, pre_processed_bin_img=pre_processed_bin_img, raw_skeleton=raw_skeleton, pre_processed_skeleton=pre_processed_skeleton, post_processed_skeleton=post_processed_skeleton)
+            
     return skeleton
 
 
@@ -111,7 +115,7 @@ def _gradient_based_optimization(bin_img: np.ndarray, info: list[str], _plot_bin
 if __name__ == "__main__":
     # skeleton = thin("dataset/annotated/annotated-K/O. glaberrima/64_2_1_3_2_DSC01622.jpg", "zhang", 1, 1, _plot_bin_img=True, _plot_skeleton=True, _plot_result=False, min_length=0)
     
-    skeleton = thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", "zhang", 1, 1, _plot_bin_img=0, _plot_skeleton=0, _plot_result=0, min_length=10, _plot_prune=1)
+    skeleton = thin("crack-segmentation/transfer-learning-results/RUC_NET/38_2_1_3_1_DSC09528_.png", "zhang", 1, 1, _plot_bin_img=0, _plot_skeleton=0, _plot_result=1, min_length=10, _plot_prune=0)
     
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/39_2_1_2_3_DSC09544_.png", 'zhang', 1, 1, 0)
     # thin("crack-segmentation/transfer-learning-results/RUC_NET/42_2_1_2_1_DSC01724.png", 'zhang', 1, 1, 0)
