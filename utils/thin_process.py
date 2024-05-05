@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 from skimage.morphology import square, binary_erosion, binary_dilation, binary_closing, binary_opening
 from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_info
 
@@ -72,30 +73,44 @@ def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
     ## Returns:
     - post_processed_skeleton: All short branches are removed
     """
-    print(f"==========POST-PROCESSING METHOD: <PRUNING>==========")
+    print(f"==========POST-PROCESSING METHOD: <PRUNING_{min_length}>==========")
     raw_skeleton = np.copy(skeleton_img)
 
     # Initiating end_points
     white_px = np.argwhere(raw_skeleton > 0)
     end_points = []  # Tip of the skeleton
+    debris = []  # Isolated pixel
     for i in white_px:
         neighbors_mat = raw_skeleton[i[0]-1:i[0]+2, i[1]-1:i[1]+2]
         neighbors = len(np.argwhere(neighbors_mat > 0)) - 1
         if neighbors == 1:
             end_points.append(tuple(i))
+        if neighbors == 0:
+            debris.append(tuple(i))
 
     # Get coordinates of points according to their roles
     parents = {}  # parents[child] = parent
     children = []
     for child in end_points:
         while True:
+            # Update children
             children.append(child)
+            
+            # Find parent
             parent = _get_parent(raw_skeleton, child, children)
             parents[child] = parent
+            
+            # Handle None when there are random isolated white dot in binary image (e.g. RUC_NET images)
+            if parent is None:
+                break
+            
+            # Check if parent is a junction
             neighbors_mat = raw_skeleton[parent[0]-1:parent[0]+2, parent[1]-1:parent[1]+2]
             if np.sum(neighbors_mat) > 255 * 3:
                 parents[parent] = None  # Assume junctions don't have parents
                 break
+            
+            # Update child
             child = parent
 
     # Finding branches' paths
@@ -112,14 +127,18 @@ def post_process(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
             current_point = parent
 
         branches.append(path)
-
+        
     # PRUNING
+    post_processed_skeleton = np.copy(skeleton_img)
     for branch in branches:
         if len(branch) < min_length:
             for pts in branch:
-                raw_skeleton[pts[0], pts[1]] = 0
+                post_processed_skeleton[pts[0], pts[1]] = 0
+                
+    # SWEEPING
+    for pts in debris:
+        post_processed_skeleton[pts[0], pts[1]] = 0
     
-    post_processed_skeleton = raw_skeleton
     return post_processed_skeleton
 
 def _get_parent(skeleton_img: np.ndarray, end_point: tuple, children: list[tuple]) -> tuple:
