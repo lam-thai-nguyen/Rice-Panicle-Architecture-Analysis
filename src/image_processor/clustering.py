@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
+def _crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
     """
     ## Description
     Performs Crossing Number Method to find junctions in a given skeleton image.
@@ -50,5 +50,5 @@ def crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
     return junction_img
 
 
-def dbscan():
+def _dbscan():
     ...
