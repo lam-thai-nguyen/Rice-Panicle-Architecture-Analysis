@@ -3,7 +3,7 @@ import cv2
 from skimage.morphology import skeletonize
 
 
-def zhang_suen(binary_img: np.ndarray) -> np.ndarray:
+def _zhang_suen(binary_img: np.ndarray) -> np.ndarray:
     """
     ## Description
     Perform Z.S. thinning method on a binary image
@@ -22,4 +22,4 @@ def zhang_suen(binary_img: np.ndarray) -> np.ndarray:
     return skeleton_img
 
 
-def gradient_based_optimization(): ...
+def _gradient_based_optimization(): ...
