@@ -42,3 +42,8 @@ def json2binary(json_path: str) -> None:
 
     save_path = f"images/annotated/{user}/{species}/{file_name}.jpg"
     cv2.imwrite(save_path, binary_image)
+
+
+if __name__ == "__main__":
+    json_path = "images/annotated/annotated-T/O. glaberrima/2_2_2_1_3_DSC09851.json"
+    json2binary(json_path)
