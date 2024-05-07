@@ -1,6 +1,7 @@
 import numpy as np
 from .thinning import _zhang_suen, _gradient_based_optimization
 from .clustering import _crossing_number, _dbscan
+from .evaluation import _f1_score
 
 
 class RicePanicle:
@@ -43,4 +44,19 @@ class RicePanicle:
             return _dbscan(image)
 
     class Evaluation:
-        pass
+        @staticmethod
+        def f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False):
+            """
+            ## Description
+            Compute the f1-score as the accuracy of rice panicle junction detection.
+
+            ## Arguments
+            - y_true (np.ndarray)
+            - y_pred (np.ndarray)
+            - _return_metrics (bool) = False -> if True, returns precision and recall
+
+            ## Returns:
+            f1, (pr, rc) -> f1-score, (precision, recall)
+            """
+            return _f1_score(y_true, y_pred, _return_metrics)
+        
