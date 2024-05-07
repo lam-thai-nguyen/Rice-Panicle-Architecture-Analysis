@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from skimage.morphology import skeletonize
 from thin_plotting import plot_preprocess, plot_skeleton, plot_thin, extract_info, plot_prune
 from thin_process import pre_process, post_process
-from CustomExceptions import MissingRequiredArgument
+from utils.CustomExceptions import MissingRequiredArgument
 
 
 def thin(binary_path: str, method: str, _pre_process: bool, _post_process: bool, **kwargs) -> list[np.ndarray]:
