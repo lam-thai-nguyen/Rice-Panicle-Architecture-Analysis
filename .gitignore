@@ -1,2 +1,4 @@
 .vscode/
-utils/__pycache__/
+crack_segmentation/
+src/image_processor/__pycache__/
+src/utils/__pycache__/

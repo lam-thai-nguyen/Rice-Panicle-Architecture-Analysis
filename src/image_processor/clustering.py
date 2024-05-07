@@ -2,21 +2,18 @@ import numpy as np
 import cv2
 
 
-def cluster(skeleton: np.ndarray, method: str) -> None:
+def _crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
     """
-    method: {cn, ...}
-    """
-    if method == "cn":
-        junction_img = _crossing_number(skeleton)
-        
-    return junction_img
-        
+    ## Description
+    Performs Crossing Number Method to find junctions in a given skeleton image.
     
-def _crossing_number(skeleton: np.array) -> np.ndarray:
+    ## Arguments
+    skeleton_img: np.ndarray -> the skeleton matrix.
+    
+    ## Returns
+    junction_img: np.ndarray -> the skeleton with junction matrix.
     """
-    Perform crossing number
-    """
-    img = np.copy(skeleton)
+    img = np.copy(skeleton_img)
     
     # White px intensity 255 -> 1
     img[img == 255] = 1
@@ -40,20 +37,18 @@ def _crossing_number(skeleton: np.array) -> np.ndarray:
             continue
 
         crossing_number = abs(P2 - P1) + abs(P3 - P2) + abs(P4 - P3) + abs(P5 - P4) + abs(P6 - P5) + abs(P7 - P6) + abs(P8 - P7) + abs(P1 - P8)
-
         crossing_number //= 2
-
         if crossing_number == 3 or crossing_number == 4:
             centers.append([row, col])
 
     # White px intensity 1 -> 255
     img[img == 1] = 255
-    img_out = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    junction_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     for i in range(len(centers)):
-        cv2.circle(img_out, (centers[i][1], centers[i][0]), 2, (0, 0, 255), -1)
+        cv2.circle(junction_img, (centers[i][1], centers[i][0]), 2, (0, 0, 255), -1)
     
-    cv2.imshow(f"crossing_number", img_out)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    
-    return img_out
+    return junction_img
+
+
+def _dbscan():
+    ...
