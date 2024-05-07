@@ -45,7 +45,7 @@ def _crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
     img[img == 1] = 255
     junction_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     for i in range(len(centers)):
-        cv2.circle(junction_img, (centers[i][1], centers[i][0]), 2, (0, 0, 255), -1)
+        cv2.circle(junction_img, (centers[i][1], centers[i][0]), 2, (255, 0, 0), -1)
     
     return junction_img
 
