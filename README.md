@@ -7,27 +7,34 @@
 ## Project Directory Tree
 
 ```
-Architecture Analysis of Rice Panicle using Deep Learning/
-├── crack_segmentation/ (not shown in remote directory)
-│   ├── models/
+.
+├── crack_segmentation/
+│   ├── models
 │   └── transfer-learning-results/
+│       ├── run_1
+│       └── run_2
 ├── data/
-│   ├── metadata/
-│   ├── original_images/
-│   └── original_ricepr/
+│   ├── metadata
+│   ├── original_images
+│   └── original_ricepr
 ├── src/
 │   ├── image_processor/
-│   │   ├── one.py
-│   │   └── two.py
-│   └── examples/
-│       ├── one.ipynb
-│       └── two.ipynb
+│   │   ├── RicePanicle.py
+│   │   ├── thinning.py
+│   │   ├── clustering.py
+│   │   └── evaluation.py
+│   ├── examples/
+│   │   ├── image_annotation_segmentation.ipynb
+│   │   └── image_processing_pipeline.ipynb
+│   └── utils/
+│       ├── json2binary.py
+│       └── bounding_boxes.py
 ├── images/
-│   ├── annotated/
-│   ├── binary_images/
-│   ├── bounding_boxes/
-│   ├── junction_images/
-│   ├── raw_images_512/
-│   └── skeleton_images/
+│   ├── annotated
+│   ├── binary_images
+│   ├── bounding_boxes
+│   ├── junction_images
+│   ├── raw_images_512
+│   └── skeleton_images
 └── README.md
 ```
