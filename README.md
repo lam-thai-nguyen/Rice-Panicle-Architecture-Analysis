@@ -38,3 +38,9 @@
 │   └── skeleton_images
 └── README.md
 ```
+
+## Dir Description
+
+- **data/**: The raw data and its information.
+- **src/**: Examples and Code for image processing.
+- **images/**: Processed images ~ results. 
