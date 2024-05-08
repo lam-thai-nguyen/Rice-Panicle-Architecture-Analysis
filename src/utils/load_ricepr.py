@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import cv2
+import numpy as np
 
 
 def load_ricepr(ricepr_path: str) -> dict:
@@ -81,6 +82,38 @@ def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
             junction_xy_resized[key].append((dst_x, dst_y))
     # ============================================
     return junction_xy_resized
+
+
+def generate_y_true(junction_xy: dict, return_as_disk_=True) -> np.ndarray:
+    """
+    ## Description
+    Generates y_true for evaluation, each junction becomes a disk
+    
+    ## Arguments
+    - junction_xy: dict
+    - return_as_disk_=True
+    
+    # Returns
+    - y_true: np.ndarray (as dots or as disk)
+    """
+    junction = []
+    for value in junction_xy.values():
+        junction.extend(value)
+    
+    y_true = np.zeros((512, 512))
+    
+    if not return_as_disk_:
+        for y, x in junction:
+            y_true[x, y] = 255
+        return y_true
+    
+    for y, x in junction:
+        y_true[x-3:x+4, y] = 255
+        y_true[x, y-3:y+4] = 255
+        y_true[x-2:x+3, y-2:y+3] = 255
+        
+    return y_true
+    
     
 
 if __name__ == "__main__":
