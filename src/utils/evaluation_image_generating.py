@@ -16,13 +16,13 @@ def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
     - y_true: np.ndarray
     """
     if not main_axis:
-        junction = []
+        temp = []
         for value in junction.values():
-            junction.extend(value)
+            temp.extend(value)
         
         y_true = np.zeros((512, 512))
         
-        for y, x in junction:
+        for y, x in temp:
             y_true[x, y] = 255
             
         return y_true
@@ -38,6 +38,45 @@ def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
             y_true[x, y] = 255
             
         return y_true
+    
+
+def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> np.ndarray:
+    """
+    # Description
+    Generates a sub-skeleton image from the original skeleton -> It's a main axis skeleton
+    
+    # Arguments
+    - skeleton_img: np.ndarray
+    - ricepr_path: str | example: data/original_ricepr/O. glaberrima/1_2_1_1_1_DSC01251.ricepr
+    
+    # Returns
+    skeleton_main_axis: np.ndarray
+    """
+    # Extract information ==================================================
+    junction_resized = resize_junction(ricepr_path)
+    y_true_main_axis = generate_y_true(junction_resized, main_axis=True)
+    white_px = np.argwhere(y_true_main_axis > 0)
+    # ======================================================================
+    
+    # Creating boundary ==============================================
+    x_min, x_max = np.min(white_px[:, 1]), np.max(white_px[:, 1])
+    y_min, y_max = np.min(white_px[:, 0]), np.max(white_px[:, 0])
+    # ================================================================
+    
+    # Processing ===================================================
+    skeleton_main_axis = np.copy(skeleton_img)
+    skeleton_main_axis[:y_min-6, :] = 0
+    skeleton_main_axis[y_max+8:, :] = 0
+    skeleton_main_axis[:, :x_min-6] = 0
+    skeleton_main_axis[:, x_max+8:] = 0
+    
+    skeleton_main_axis = _pruning(skeleton_main_axis, 6)
+    
+    return skeleton_main_axis   
+
+
+def generate_skeleton_high_order():
+    pass
 
 
 def _pruning(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
@@ -157,7 +196,7 @@ if __name__ == "__main__":
     ax1.imshow(skeleton_img, cmap='gray')
     ax1.axis('off')
     ax2.imshow(main_axis, cmap='gray')
-    # ax2.scatter(white_px[:, 1], white_px[:, 0], s=10, c='r')
+    ax2.scatter(white_px[:, 1], white_px[:, 0], s=10, c='r')
     ax2.axis('off')
     
     plt.show()
