@@ -4,7 +4,7 @@
 
 **Lam Thai Nguyen** and **Trung Kien Pham**.
 
-## Project Directory Tree
+## Directory Tree
 
 ```
 .
@@ -27,6 +27,8 @@
 │   │   ├── image_annotation_segmentation.ipynb
 │   │   └── image_processing_pipeline.ipynb
 │   └── utils/
+│       ├── evaluation_image_generating.py
+│       ├── ricepr_manipulate.py
 │       ├── json2binary.py
 │       └── bounding_boxes.py
 ├── images/
@@ -41,6 +43,10 @@
 
 ## Dir Description
 
-- **data/**: The raw data and its information.
+- **data/**: Raw data and its information.
 - **src/**: Examples and Code for image processing.
 - **images/**: Processed images ~ results. 
+
+## Examples
+
+- Useful code examples are provided [HERE](src/examples).
