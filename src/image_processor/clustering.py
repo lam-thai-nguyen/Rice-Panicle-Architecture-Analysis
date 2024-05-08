@@ -9,7 +9,7 @@ def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.nd
     
     ## Arguments
     - skeleton_img: np.ndarray -> the skeleton matrix.
-    - return_pred_: bool
+    - return_pred_: bool -> Set to true to return y_pred
     
     ## Returns
     - junction_img: np.ndarray -> the skeleton with junction matrix.
