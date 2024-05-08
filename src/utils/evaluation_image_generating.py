@@ -4,18 +4,20 @@ import matplotlib.pyplot as plt
 from .ricepr_manipulate import resize_junction
 
 
-def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
+def generate_y_true(junction: dict, main_axis: bool = False, high_order: bool = False) -> np.ndarray:
     """
     ## Description
     Generates y_true for evaluation
     
     ## Arguments
     - junction: dict
+    - main_axis: bool = False
+    - high_order: bool = False
     
     # Returns
     - y_true: np.ndarray
     """
-    if not main_axis:
+    if not main_axis and not high_order:
         temp = []
         for value in junction.values():
             temp.extend(value)
@@ -27,7 +29,7 @@ def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
             
         return y_true
     
-    else:
+    elif main_axis:
         generating = junction.get('generating')
         primary = junction.get('primary')
         main_axis_junction = generating + primary
@@ -35,6 +37,19 @@ def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
         y_true = np.zeros((512, 512))
         
         for y, x in main_axis_junction:
+            y_true[x, y] = 255
+            
+        return y_true
+    
+    elif high_order:
+        secondary = junction.get('secondary')
+        tertiary = junction.get('tertiary')
+        quaternary = junction.get('quaternary')
+        high_order_junction = secondary + tertiary + quaternary
+    
+        y_true = np.zeros((512, 512))
+        
+        for y, x in high_order_junction:
             y_true[x, y] = 255
             
         return y_true
@@ -75,8 +90,40 @@ def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> n
     return skeleton_main_axis   
 
 
-def generate_skeleton_high_order():
-    pass
+def generate_skeleton_high_order(skeleton_img: np.ndarray, ricepr_path: str) -> np.ndarray:
+    """
+    # Description
+    Generates a sub-skeleton image from the original skeleton -> It's a high order skeleton
+    
+    # Arguments
+    - skeleton_img: np.ndarray
+    - ricepr_path: str | example: data/original_ricepr/O. glaberrima/1_2_1_1_1_DSC01251.ricepr
+    
+    # Returns
+    skeleton_high_order: np.ndarray
+    """
+    # Extract information ==================================================
+    junction_resized = resize_junction(ricepr_path)
+    y_true_high_order = generate_y_true(junction_resized, main_axis=True)
+    white_px = np.argwhere(y_true_high_order > 0)
+    # ======================================================================
+    
+    # Creating boundary ==============================================
+    x_min, x_max = np.min(white_px[:, 1]), np.max(white_px[:, 1])
+    y_min, y_max = np.min(white_px[:, 0]), np.max(white_px[:, 0])
+    # ================================================================
+    
+    # Processing ===================================================
+    skeleton_main_axis = np.copy(skeleton_img)
+    skeleton_main_axis[:y_min-6, :] = 0
+    skeleton_main_axis[y_max+8:, :] = 0
+    skeleton_main_axis[:, :x_min-6] = 0
+    skeleton_main_axis[:, x_max+8:] = 0
+    
+    skeleton_high_order = skeleton_img - skeleton_main_axis
+    skeleton_high_order = _pruning(skeleton_high_order, 10)
+    
+    return skeleton_high_order
 
 
 def _pruning(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
