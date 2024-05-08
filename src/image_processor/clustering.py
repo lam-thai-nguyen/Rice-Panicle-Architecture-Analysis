@@ -2,16 +2,18 @@ import numpy as np
 import cv2
 
 
-def _crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
+def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.ndarray]:
     """
     ## Description
     Performs Crossing Number Method to find junctions in a given skeleton image.
     
     ## Arguments
-    skeleton_img: np.ndarray -> the skeleton matrix.
+    - skeleton_img: np.ndarray -> the skeleton matrix.
+    - return_pred_: bool
     
     ## Returns
-    junction_img: np.ndarray -> the skeleton with junction matrix.
+    - junction_img: np.ndarray -> the skeleton with junction matrix.
+    - y_pred: np.ndarray, if return_pred_
     """
     img = np.copy(skeleton_img)
     
@@ -47,7 +49,16 @@ def _crossing_number(skeleton_img: np.ndarray) -> np.ndarray:
     for i in range(len(centers)):
         cv2.circle(junction_img, (centers[i][1], centers[i][0]), 2, (255, 0, 0), -1)
     
-    return junction_img
+    results = [junction_img]
+    
+    # Create y_pred
+    if return_pred_:
+        y_pred = np.zeros((512, 512))
+        for i in range(len(centers)):
+            y_pred[centers[i][0], centers[i][1]] = 255
+        results.append(y_pred)
+        
+    return results
 
 
 def _dbscan():
