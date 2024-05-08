@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
+
 def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False) -> list:
     """
     ## Description
@@ -42,26 +43,6 @@ def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = Fa
         results.append(recall)
     
     return results
-
-
-def _f1_score_main_axis(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False) -> list:
-    """
-    ## Description
-    Compute the f1-score for main axis as the accuracy of rice panicle junction detection.
-
-    ## Arguments
-    - y_true (np.ndarray)
-    - y_pred (np.ndarray)
-    - _return_metrics (bool) = False -> if True, returns precision and recall
-
-    ## Returns:
-    f1, (pr, rc) -> f1-score, (precision, recall)
-    """
-    y_true_disk, n_true_junctions = _junction2disk(y_true, return_counts=True)
-    white_px_true = np.argwhere(y_true_disk > 0)
-    white_px_pred = np.argwhere(y_pred > 0)
-    
-    
 
 
 def _junction2disk(y_true: np.ndarray, return_counts=False) -> list:
