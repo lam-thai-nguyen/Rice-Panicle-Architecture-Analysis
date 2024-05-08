@@ -31,11 +31,7 @@ def load_ricepr(ricepr_path: str) -> dict:
         y = int(vertex.attrib["y"])
         type_ = vertex.attrib["type"]
         
-        if type_ == "Generating":
-            junction_xy["generating"].append((x, y))
-        elif type_ == "End":
-            junction_xy["end"].append((x, y))
-        elif type_ == "Primary":
+        if type_ == "Primary":
             junction_xy["primary"].append((x, y))
         elif type_ == "Seconday":
             junction_xy["secondary"].append((x, y))
@@ -84,17 +80,16 @@ def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     return junction_xy_resized
 
 
-def generate_y_true(junction_xy: dict, return_as_disk_=True) -> np.ndarray:
+def generate_y_true(junction_xy: dict) -> np.ndarray:
     """
     ## Description
-    Generates y_true for evaluation, each junction becomes a disk
+    Generates y_true for evaluation
     
     ## Arguments
     - junction_xy: dict
-    - return_as_disk_=True
     
     # Returns
-    - y_true: np.ndarray (as dots or as disk)
+    - y_true: np.ndarray
     """
     junction = []
     for value in junction_xy.values():
@@ -102,22 +97,7 @@ def generate_y_true(junction_xy: dict, return_as_disk_=True) -> np.ndarray:
     
     y_true = np.zeros((512, 512))
     
-    if not return_as_disk_:
-        for y, x in junction:
-            y_true[x, y] = 255
-        return y_true
-    
     for y, x in junction:
-        y_true[x-3:x+4, y] = 255
-        y_true[x, y-3:y+4] = 255
-        y_true[x-2:x+3, y-2:y+3] = 255
+        y_true[x, y] = 255
         
     return y_true
-    
-    
-
-if __name__ == "__main__":
-    ricepr_path = "data/original_ricepr/O. glaberrima/1_2_1_1_1_DSC01251.ricepr"
-    # junction_xy = load_ricepr(ricepr_path)
-    # print(junction_xy)
-    print(resize_xy(ricepr_path))
