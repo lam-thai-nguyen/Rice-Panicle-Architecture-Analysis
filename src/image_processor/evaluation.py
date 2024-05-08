@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.metrics import f1_score
+import matplotlib.pyplot as plt
 
-
-def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False) -> float:
+def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False) -> list:
     """
     ## Description
     Compute the f1-score as the accuracy of rice panicle junction detection.
@@ -44,10 +44,30 @@ def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = Fa
     return results
 
 
-def _junction2disk(y_true: np.ndarray, return_counts=False) -> np.ndarray:
+def _f1_score_main_axis(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = False) -> list:
     """
     ## Description
-    Turns junction to a disk of radius R=3
+    Compute the f1-score for main axis as the accuracy of rice panicle junction detection.
+
+    ## Arguments
+    - y_true (np.ndarray)
+    - y_pred (np.ndarray)
+    - _return_metrics (bool) = False -> if True, returns precision and recall
+
+    ## Returns:
+    f1, (pr, rc) -> f1-score, (precision, recall)
+    """
+    y_true_disk, n_true_junctions = _junction2disk(y_true, return_counts=True)
+    white_px_true = np.argwhere(y_true_disk > 0)
+    white_px_pred = np.argwhere(y_pred > 0)
+    
+    
+
+
+def _junction2disk(y_true: np.ndarray, return_counts=False) -> list:
+    """
+    ## Description
+    Turns junction to a disk of radius R=4
     
     ## Arguments
     - y_true: np.ndarray
@@ -55,6 +75,7 @@ def _junction2disk(y_true: np.ndarray, return_counts=False) -> np.ndarray:
     
     ## Returns
     y_true_disk: np.ndarray
+    n_junctions: int
     """
     y_true_disk = np.zeros((512, 512))
     
@@ -62,9 +83,11 @@ def _junction2disk(y_true: np.ndarray, return_counts=False) -> np.ndarray:
     n_junctions = len(white_px)
     
     for x, y in white_px:
-        y_true_disk[x-3:x+4, y] = 255
-        y_true_disk[x, y-3:y+4] = 255
         y_true_disk[x-2:x+3, y-2:y+3] = 255
+        y_true_disk[x-3:x+4, y-2:y+3] = 255
+        y_true_disk[x-2:x+3, y-3:y+4] = 255
+        y_true_disk[x, y-4:y+5] = 255
+        y_true_disk[x-4:x+5, y] = 255
         
     results = [y_true_disk]
     
