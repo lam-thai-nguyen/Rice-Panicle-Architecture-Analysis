@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from ricepr_manipulate import resize_junction
+from .ricepr_manipulate import resize_junction
 
 
 def generate_y_true(junction: dict, main_axis: bool = False) -> np.ndarray:
@@ -144,7 +144,7 @@ def _pruning(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
             path.append(parent)
             current_point = parent
 
-        branches.append(path[:-1])
+        branches.append(path)
         
     # PRUNING
     post_processed_skeleton = np.copy(skeleton_img)
