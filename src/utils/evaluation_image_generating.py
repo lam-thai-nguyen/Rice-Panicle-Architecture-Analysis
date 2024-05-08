@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from .ricepr_manipulate import resize_junction
+from ricepr_manipulate import resize_junction
 
 
 def generate_y_true(junction: dict, main_axis: bool = False, high_order: bool = False) -> np.ndarray:
