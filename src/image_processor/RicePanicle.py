@@ -26,18 +26,20 @@ class RicePanicle:
 
     class Clustering:
         @staticmethod
-        def crossing_number(skeleton_img: np.ndarray):
+        def crossing_number(skeleton_img: np.ndarray, return_pred_: bool):
             """
             ## Description
             Performs Crossing Number Method to find junctions in a given skeleton image.
-
+            
             ## Arguments
-            skeleton_img: np.ndarray -> the skeleton matrix.
-
+            - skeleton_img: np.ndarray -> the skeleton matrix.
+            - return_pred_: bool
+            
             ## Returns
-            junction_img: np.ndarray -> the skeleton with junction matrix.
+            - junction_img: np.ndarray -> the skeleton with junction matrix.
+            - y_pred: np.ndarray, if return_pred_
             """
-            return _crossing_number(skeleton_img)
+            return _crossing_number(skeleton_img, return_pred_)
 
         @staticmethod
         def dbscan(image):
