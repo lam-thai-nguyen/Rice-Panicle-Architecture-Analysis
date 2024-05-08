@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 
-def load_ricepr(ricepr_path: str) -> dict:
+def _load_ricepr(ricepr_path: str) -> dict:
     """
     ## Description
     Reads .ricepr file to extract the true junction coordinate
@@ -61,16 +61,21 @@ def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     info = ricepr_path.split('/')
     name = info[-1][:-7]
     species = info[-2]
+    py_ipynb_distinguish = info[0]
     # ============================================
-    
-    # Get src size ===============================
-    original_image = cv2.imread(f"../../data/original_images/{species}/{name}.jpg", cv2.IMREAD_GRAYSCALE)
+
+    # Get src size =============================== 
+    if py_ipynb_distinguish == "..":
+        original_image = cv2.imread(f"../../data/original_images/{species}/{name}.jpg", cv2.IMREAD_GRAYSCALE)
+    else:
+        original_image = cv2.imread(f"data/original_images/{species}/{name}.jpg", cv2.IMREAD_GRAYSCALE)
+        
     src_size = original_image.shape
     src_height, src_width = src_size
     # ============================================
     
     dst_height, dst_width = dst_size
-    junction_xy = load_ricepr(ricepr_path)
+    junction_xy = _load_ricepr(ricepr_path)
     junction_xy_resized = {_key: [] for _key in junction_xy}
     
     # Conversion =================================
@@ -82,7 +87,7 @@ def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     return junction_xy_resized
 
 
-def generate_y_true(junction_xy: dict) -> np.ndarray:
+def generate_y_true(junction_xy: dict, main_axis: bool = False) -> np.ndarray:
     """
     ## Description
     Generates y_true for evaluation
@@ -93,36 +98,26 @@ def generate_y_true(junction_xy: dict) -> np.ndarray:
     # Returns
     - y_true: np.ndarray
     """
-    junction = []
-    for value in junction_xy.values():
-        junction.extend(value)
-    
-    y_true = np.zeros((512, 512))
-    
-    for y, x in junction:
-        y_true[x, y] = 255
+    if not main_axis:
+        junction = []
+        for value in junction_xy.values():
+            junction.extend(value)
         
-    return y_true
-
-
-def generate_y_true_main_axis(junction_xy: dict) -> np.ndarray:
-    """
-    ## Description
-    Generates y_true_main_axis for evaluation
-    
-    ## Arguments
-    - junction_xy: dict
-    
-    # Returns
-    - y_true: np.ndarray
-    """
-    generating = junction_xy.get('generating')
-    primary = junction_xy.get('primary')
-    main_axis_junction = generating + primary
-    
-    y_true = np.zeros((512, 512))
-    
-    for y, x in main_axis_junction:
-        y_true[x, y] = 255
+        y_true = np.zeros((512, 512))
         
-    return y_true
+        for y, x in junction:
+            y_true[x, y] = 255
+            
+        return y_true
+    
+    else:
+        generating = junction_xy.get('generating')
+        primary = junction_xy.get('primary')
+        main_axis_junction = generating + primary
+        
+        y_true = np.zeros((512, 512))
+        
+        for y, x in main_axis_junction:
+            y_true[x, y] = 255
+            
+        return y_true
