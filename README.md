@@ -18,7 +18,10 @@
 │   ├── original_images
 │   └── original_ricepr
 ├── src/
+│   ├── __init__.py
+│   ├── pipeline.py
 │   ├── image_processor/
+│   │   ├── __init__.py
 │   │   ├── RicePanicle.py
 │   │   ├── thinning.py
 │   │   ├── clustering.py
@@ -27,6 +30,7 @@
 │   │   ├── image_annotation_segmentation.ipynb
 │   │   └── image_processing_pipeline.ipynb
 │   └── utils/
+│       ├── __init__.py
 │       ├── evaluation_image_generating.py
 │       ├── ricepr_manipulate.py
 │       ├── json2binary.py
