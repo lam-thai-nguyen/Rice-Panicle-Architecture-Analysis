@@ -31,7 +31,9 @@ def load_ricepr(ricepr_path: str) -> dict:
         y = int(vertex.attrib["y"])
         type_ = vertex.attrib["type"]
         
-        if type_ == "Primary":
+        if type_ == "Generating":
+            junction_xy["generating"].append((x, y))
+        elif type_ == "Primary":
             junction_xy["primary"].append((x, y))
         elif type_ == "Seconday":
             junction_xy["secondary"].append((x, y))
@@ -98,6 +100,29 @@ def generate_y_true(junction_xy: dict) -> np.ndarray:
     y_true = np.zeros((512, 512))
     
     for y, x in junction:
+        y_true[x, y] = 255
+        
+    return y_true
+
+
+def generate_y_true_main_axis(junction_xy: dict) -> np.ndarray:
+    """
+    ## Description
+    Generates y_true_main_axis for evaluation
+    
+    ## Arguments
+    - junction_xy: dict
+    
+    # Returns
+    - y_true: np.ndarray
+    """
+    generating = junction_xy.get('generating')
+    primary = junction_xy.get('primary')
+    main_axis_junction = generating + primary
+    
+    y_true = np.zeros((512, 512))
+    
+    for y, x in main_axis_junction:
         y_true[x, y] = 255
         
     return y_true
