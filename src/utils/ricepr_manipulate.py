@@ -1,54 +1,11 @@
 import xml.etree.ElementTree as ET
 import cv2
-import numpy as np
 
 
-def _load_ricepr(ricepr_path: str) -> dict:
+def resize_junction(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     """
     ## Description
-    Reads .ricepr file to extract the true junction coordinate
-
-    ## Argument
-    ricepr_path (str)
-
-    ## Returns
-    junction_xy (dict) -> dict[order] = [(x, y), ...]
-    """
-    tree = ET.parse(ricepr_path)
-    root = tree.getroot()
-
-    junction_xy = {
-        "generating": [],
-        "end": [],
-        "primary": [],
-        "secondary": [],
-        "tertiary": [],
-        "quaternary": [],
-    }
-
-    for vertex in root.iter("vertex"):
-        x = int(vertex.attrib["x"])
-        y = int(vertex.attrib["y"])
-        type_ = vertex.attrib["type"]
-        
-        if type_ == "Generating":
-            junction_xy["generating"].append((x, y))
-        elif type_ == "Primary":
-            junction_xy["primary"].append((x, y))
-        elif type_ == "Seconday":
-            junction_xy["secondary"].append((x, y))
-        elif type_ == "Tertiary":
-            junction_xy["tertiary"].append((x, y))
-        elif type_ == "Quaternary":
-            junction_xy["quaternary"].append((x, y))
-        
-    return junction_xy
-
-
-def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
-    """
-    ## Description
-    Resizes junction_xy from src size to dst size
+    Resizes junction from src size to dst size | Junctions are extracted from ricepr file
 
     ## Argument
     - ricepr_path (str)
@@ -75,49 +32,55 @@ def resize_xy(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     # ============================================
     
     dst_height, dst_width = dst_size
-    junction_xy = _load_ricepr(ricepr_path)
-    junction_xy_resized = {_key: [] for _key in junction_xy}
+    junction = _load_ricepr(ricepr_path)
+    junction_resized = {_key: [] for _key in junction}
     
     # Conversion =================================
-    for key in junction_xy:
-        for (src_x, src_y) in junction_xy[key]:
+    for key in junction:
+        for (src_x, src_y) in junction[key]:
             dst_x, dst_y = round((src_x / src_width) * dst_width), round((src_y / src_height) * dst_height)
-            junction_xy_resized[key].append((dst_x, dst_y))
+            junction_resized[key].append((dst_x, dst_y))
     # ============================================
-    return junction_xy_resized
+    return junction_resized
 
 
-def generate_y_true(junction_xy: dict, main_axis: bool = False) -> np.ndarray:
+def _load_ricepr(ricepr_path: str) -> dict:
     """
     ## Description
-    Generates y_true for evaluation
-    
-    ## Arguments
-    - junction_xy: dict
-    
-    # Returns
-    - y_true: np.ndarray
+    Reads .ricepr file to extract the true junction coordinate
+
+    ## Argument
+    ricepr_path (str)
+
+    ## Returns
+    junction_xy (dict) -> dict[order] = [(x, y), ...]
     """
-    if not main_axis:
-        junction = []
-        for value in junction_xy.values():
-            junction.extend(value)
+    tree = ET.parse(ricepr_path)
+    root = tree.getroot()
+
+    junction = {
+        "generating": [],
+        "end": [],
+        "primary": [],
+        "secondary": [],
+        "tertiary": [],
+        "quaternary": [],
+    }
+
+    for vertex in root.iter("vertex"):
+        x = int(vertex.attrib["x"])
+        y = int(vertex.attrib["y"])
+        type_ = vertex.attrib["type"]
         
-        y_true = np.zeros((512, 512))
+        if type_ == "Generating":
+            junction["generating"].append((x, y))
+        elif type_ == "Primary":
+            junction["primary"].append((x, y))
+        elif type_ == "Seconday":
+            junction["secondary"].append((x, y))
+        elif type_ == "Tertiary":
+            junction["tertiary"].append((x, y))
+        elif type_ == "Quaternary":
+            junction["quaternary"].append((x, y))
         
-        for y, x in junction:
-            y_true[x, y] = 255
-            
-        return y_true
-    
-    else:
-        generating = junction_xy.get('generating')
-        primary = junction_xy.get('primary')
-        main_axis_junction = generating + primary
-        
-        y_true = np.zeros((512, 512))
-        
-        for y, x in main_axis_junction:
-            y_true[x, y] = 255
-            
-        return y_true
+    return junction
