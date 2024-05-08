@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from ricepr_manipulate import resize_junction
+from .ricepr_manipulate import resize_junction
 
 
 def generate_y_true(junction: dict, main_axis: bool = False, high_order: bool = False) -> np.ndarray:
@@ -218,34 +218,3 @@ def _get_parent(skeleton_img: np.ndarray, end_point: tuple, children: list[tuple
                 if parent not in children:
                     return parent
     return None
-
-
-if __name__ == "__main__":
-    ricepr_path = "data/original_ricepr/O. sativa/13_2_1_1_1_DSC01478.ricepr"
-    junction_xy_resized = resize_junction(ricepr_path)
-    y_true_main_axis = generate_y_true(junction_xy_resized, main_axis=True)
-    white_px = np.argwhere(y_true_main_axis > 0)
-    print(white_px)
-    x_min, x_max = np.min(white_px[:, 1]), np.max(white_px[:, 1])
-    y_min, y_max = np.min(white_px[:, 0]), np.max(white_px[:, 0])
-    
-    skeleton_img = cv2.imread("test.png", cv2.IMREAD_GRAYSCALE)
-    main_axis = np.copy(skeleton_img)
-    main_axis[:y_min-6, :] = 0
-    main_axis[y_max+8:, :] = 0
-    main_axis[:, :x_min-6] = 0
-    main_axis[:, x_max+8:] = 0
-    
-    main_axis = _pruning(main_axis, 6)
-    
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
-    
-    ax1.imshow(skeleton_img, cmap='gray')
-    ax1.axis('off')
-    ax2.imshow(main_axis, cmap='gray')
-    ax2.scatter(white_px[:, 1], white_px[:, 0], s=10, c='r')
-    ax2.axis('off')
-    
-    plt.show()
-
-    
