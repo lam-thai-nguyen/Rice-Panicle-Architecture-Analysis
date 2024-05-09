@@ -21,8 +21,8 @@ class RicePanicle:
             return _zhang_suen(binary_image)
 
         @staticmethod
-        def gradient_based_optimization(image):
-            return _gradient_based_optimization(image)
+        def gradient_based_optimization(binary_image: np.ndarray):
+            return _gradient_based_optimization(binary_image)
 
     class Clustering:
         @staticmethod
@@ -42,8 +42,8 @@ class RicePanicle:
             return _crossing_number(skeleton_img, return_pred_)
 
         @staticmethod
-        def dbscan(image):
-            return _dbscan(image)
+        def dbscan(skeleton_img: np.ndarray, return_pred_: bool):
+            return _dbscan(skeleton_img, return_pred_)
 
     class Evaluation:
         @staticmethod
