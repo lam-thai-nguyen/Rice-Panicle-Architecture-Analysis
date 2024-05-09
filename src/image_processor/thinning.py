@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 from skimage.morphology import skeletonize
+import torch
+from skeletonize import Skeletonize
 
 
 def _zhang_suen(binary_img: np.ndarray) -> np.ndarray:
@@ -22,4 +24,21 @@ def _zhang_suen(binary_img: np.ndarray) -> np.ndarray:
     return skeleton_img
 
 
-def _gradient_based_optimization(): ...
+def _gradient_based_optimization(binary_img: np.ndarray):
+    _, thresholded_image = cv2.threshold(binary_img, 120, 255, cv2.THRESH_BINARY)
+
+    img = thresholded_image / 255.0
+
+    img_tensor = torch.tensor(img, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+
+    skeletonization_module = Skeletonize(probabilistic=True, beta=0.33, tau=1.0, simple_point_detection='Boolean')
+    skeleton_stack = np.zeros_like(img_tensor.squeeze())
+
+    for step in range(1):
+        skeleton_stack = skeleton_stack + skeletonization_module(img_tensor).numpy().squeeze()
+
+    skeleton_Gradient = (skeleton_stack / 1).round()
+
+    skeleton_Gradient = skeleton_Gradient.astype(np.uint8) * 255
+    # cv2.imshow("result", skeleton_Gradient)
+    return skeleton_Gradient
