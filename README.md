@@ -24,6 +24,7 @@
 │   │   ├── __init__.py
 │   │   ├── RicePanicle.py
 │   │   ├── thinning.py
+│   │   ├── skeletonize.py
 │   │   ├── clustering.py
 │   │   └── evaluation.py
 │   ├── examples/
