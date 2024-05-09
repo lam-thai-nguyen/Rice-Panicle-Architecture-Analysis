@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from sklearn.cluster import DBSCAN
 
 
 def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.ndarray]:
@@ -59,7 +60,34 @@ def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.nd
         results.append(y_pred)
         
     return results
+def _dbscan(skeleton_img: np.ndarray, return_pred_: bool):
+    image = np.copy(skeleton_img)
 
+    data_points = np.column_stack(np.where(image > 0))
 
-def _dbscan():
-    ...
+    dbscan = DBSCAN(eps=1.5, min_samples=4)
+    dbscan.fit(data_points)
+
+    cluster_labels = dbscan.labels_
+
+    unique_labels = np.unique(cluster_labels)
+    centers = []
+    for label in unique_labels:
+        if label != -1:
+            cluster_points = data_points[cluster_labels == label]
+            center = np.mean(cluster_points, axis=0)
+            centers.append(center.astype(int))
+
+    junction_img = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    for center in centers:
+        cv2.circle(junction_img, tuple((center[::-1])), 1, (0, 0, 255), -1)
+
+    results = [junction_img]
+
+    if return_pred_:
+        y_pred = np.zeros((512, 512))
+        for i in range(len(centers)):
+            y_pred[centers[i][0], centers[i][1]] = 255
+        results.append(y_pred)
+
+    return results
