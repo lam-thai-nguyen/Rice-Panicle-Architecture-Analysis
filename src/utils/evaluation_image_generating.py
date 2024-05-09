@@ -81,9 +81,9 @@ def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> n
     # Processing ===================================================
     skeleton_main_axis = np.copy(skeleton_img)
     skeleton_main_axis[:y_min-6, :] = 0
-    skeleton_main_axis[y_max+8:, :] = 0
+    skeleton_main_axis[y_max+6:, :] = 0
     skeleton_main_axis[:, :x_min-6] = 0
-    skeleton_main_axis[:, x_max+8:] = 0
+    skeleton_main_axis[:, x_max+6:] = 0
     
     skeleton_main_axis = _pruning(skeleton_main_axis, 6)
     
@@ -115,13 +115,12 @@ def generate_skeleton_high_order(skeleton_img: np.ndarray, ricepr_path: str) -> 
     
     # Processing ===================================================
     skeleton_main_axis = np.copy(skeleton_img)
-    skeleton_main_axis[:y_min-6, :] = 0
-    skeleton_main_axis[y_max+8:, :] = 0
-    skeleton_main_axis[:, :x_min-6] = 0
-    skeleton_main_axis[:, x_max+8:] = 0
+    skeleton_main_axis[:y_min-4, :] = 0
+    skeleton_main_axis[y_max+4:, :] = 0
+    skeleton_main_axis[:, :x_min-4] = 0
+    skeleton_main_axis[:, x_max+4:] = 0
     
     skeleton_high_order = skeleton_img - skeleton_main_axis
-    skeleton_high_order = _pruning(skeleton_high_order, 10)
     
     return skeleton_high_order
 
@@ -140,6 +139,10 @@ def _pruning(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
     """
     print(f"==========POST-PROCESSING METHOD: <PRUNING_{min_length}>==========")
     raw_skeleton = np.copy(skeleton_img)
+    raw_skeleton[:, 0] = 0
+    raw_skeleton[:, -1] = 0
+    raw_skeleton[0, :] = 0
+    raw_skeleton[-1, :] = 0
 
     # Initiating end_points
     white_px = np.argwhere(raw_skeleton > 0)
