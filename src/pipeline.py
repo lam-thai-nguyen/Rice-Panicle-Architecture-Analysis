@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from image_processor.RicePanicle import RicePanicle
@@ -19,7 +18,6 @@ def pipeline(binary_path: str) -> None:
             ricepr_path = f"data/original_ricepr/O. glaberrima/{name}.ricepr"
         else:
             ricepr_path = f"data/original_ricepr/O. sativa/{name}.ricepr"
-            
     # ===========================================================
     
     # ==================ALL JUNCTIONS============================
