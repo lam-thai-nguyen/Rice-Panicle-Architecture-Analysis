@@ -25,9 +25,9 @@ def _zhang_suen(binary_img: np.ndarray) -> np.ndarray:
 
 
 def _gradient_based_optimization(binary_img: np.ndarray):
-    _, thresholded_image = cv2.threshold(binary_img, 120, 255, cv2.THRESH_BINARY)
+    _, threshold_image = cv2.threshold(binary_img, 120, 255, cv2.THRESH_BINARY)
 
-    img = thresholded_image / 255.0
+    img = threshold_image / 255.0
 
     img_tensor = torch.tensor(img, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
 
@@ -40,5 +40,4 @@ def _gradient_based_optimization(binary_img: np.ndarray):
     skeleton_Gradient = (skeleton_stack / 1).round()
 
     skeleton_Gradient = skeleton_Gradient.astype(np.uint8) * 255
-    # cv2.imshow("result", skeleton_Gradient)
     return skeleton_Gradient
