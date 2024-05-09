@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from skimage.morphology import skeletonize
 import torch
-from skeletonize import Skeletonize
+from .skeletonize import Skeletonize
 
 
 def _zhang_suen(binary_img: np.ndarray) -> np.ndarray:
