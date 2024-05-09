@@ -60,6 +60,8 @@ def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.nd
         results.append(y_pred)
         
     return results
+
+
 def _dbscan(skeleton_img: np.ndarray, return_pred_: bool):
     image = np.copy(skeleton_img)
 
@@ -80,7 +82,7 @@ def _dbscan(skeleton_img: np.ndarray, return_pred_: bool):
 
     junction_img = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
     for center in centers:
-        cv2.circle(junction_img, tuple((center[::-1])), 1, (0, 0, 255), -1)
+        cv2.circle(junction_img, tuple((center[::-1])), 2, (255, 0, 0), -1)
 
     results = [junction_img]
 
