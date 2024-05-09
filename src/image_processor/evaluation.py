@@ -31,8 +31,8 @@ def _f1_score(y_true: np.ndarray, y_pred: np.ndarray, _return_metrics: bool = Fa
         if junction in y_true_tuple:
             true_pos += 1
             
-    false_pos = n_pred_junctions - true_pos
-    false_neg = n_true_junctions - true_pos
+    false_pos = max(n_pred_junctions - true_pos, 0)
+    false_neg = max(n_true_junctions - true_pos, 0)
     precision = true_pos / (true_pos + false_pos)
     recall = true_pos / (true_pos + false_neg)
     f1_score = 2 * precision * recall / (precision + recall)
