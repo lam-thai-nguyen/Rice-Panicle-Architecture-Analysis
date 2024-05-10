@@ -54,7 +54,7 @@ def pipeline(binary_path: str) -> None:
     skeleton_img_3 = skeleton_img_1 - skeleton_img_2
     y_pred_3 = y_pred_1 - y_pred_2
     # 4. y_pred_3_merged
-    _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3)
+    _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3, binary_path)
     # 5. y_pred_1 = y_pred_2 + y_pred_3_merged
     y_pred_1 = y_pred_2 + y_pred_3_merged
     # --------------------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ def pipeline(binary_path: str) -> None:
         print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
 
 
-def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np.ndarray:
+def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, _plot=False) -> np.ndarray:
     """
     ## Description
     Merging close predicted junctions into one junction. Should only be applied to high order junctions.
@@ -109,18 +109,32 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np
     ## Argument:
     - y_pred np.ndarray
     - skeleton_img: np.ndarray
+    - binary_path: str
     - _plot=False
         
     ## Returns:
     - junction_img_merged: np.ndarray
     - y_pred_merged: np.ndarray
     """
+    # EXTRACT INFORMATION =======================================
+    info = binary_path.split('/')
+    name = info[-1][:-4]
+    species = None if "O. " not in info[-2] else info[-2]
+    model = info[-2] if info[-2] in ["U2CRACKNET", "DEEPCRACK", "FCN", "ACS", "RUC_NET", "SEGNET", 'UNET'] else ""
+    if species is None:
+        if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
+            species = "O. glaberrima"
+        else:
+            species = "O. sativa"
+    # ===========================================================
+    
     junction_img_merged = np.copy(skeleton_img)
     y_pred_merged = np.copy(y_pred)
     
     white_px = np.argwhere(y_pred_merged > 0)
+    n_initial = len(white_px)
     
-    db = DBSCAN(eps=7, min_samples=3).fit(white_px)
+    db = DBSCAN(eps=7, min_samples=2).fit(white_px)
     labels = db.labels_
     
     # Merging
@@ -134,28 +148,36 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np
             y_pred_merged[x, y] = 255
     
     white_px_merged = np.argwhere(y_pred_merged > 0)
+    n_merged = len(white_px_merged)
             
     # Visualization
-    if _plot:
-        bg = np.zeros((512, 512))
-        
-        _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-        ax1.imshow(bg, cmap='gray')
-        ax1.scatter(white_px[:, 1], white_px[:, 0], c='w', s=5)
-        ax1.axis('off')
-        
-        mask = labels != -1
-        ax2.imshow(bg, cmap='gray')
-        colors = ['r' if label == 0 else 'b' if label == 1 else 'y' for label in labels[mask]]
-        ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=colors, s=5)
-        ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='w', s=5)
-        ax2.axis('off')
-        
-        ax3.imshow(bg, cmap='gray')
-        ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='w', s=5)
-        ax3.axis('off')
+    bg = np.zeros((512, 512))
+    mask = labels != -1
+    colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'brown']
+    colors_dict = {i: colors[i] for i in range(10)}
+    
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+    ax1.imshow(bg, cmap='gray')
+    ax1.scatter(white_px[:, 1], white_px[:, 0], c='w', s=5)
+    ax1.set_title("Pre-merged High Order Junctions.")
+    ax1.axis('off')
+    
+    ax2.imshow(bg, cmap='gray')
+    cluster_colors = [colors_dict[label % 10] for label in labels[mask]]
+    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=cluster_colors, s=5)
+    ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='w', s=5)
+    ax2.set_title("Clusters to be merged.")
+    ax2.axis('off')
+    
+    ax3.imshow(bg, cmap='gray')
+    ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='w', s=5)
+    ax3.set_title("Clusters merged as one junction.")
+    ax3.axis('off')
 
-        plt.suptitle("Merging Close High Order Junctions")
+    plt.suptitle(f"Merging High Order Junctions\nPrevious: {n_initial} -> Merged: {n_merged}")
+    plt.savefig(f"images/pipeline/merge_pred/{model + '/' if model else model}{name}.jpg")
+    
+    if _plot:
         plt.show()
     
     junction_img_merged = cv2.cvtColor(junction_img_merged, cv2.COLOR_GRAY2RGB)
@@ -165,6 +187,8 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np
     return junction_img_merged, y_pred_merged
 
 if __name__ == "__main__":
-    binary_path = "crack_segmentation/transfer-learning-results/run_2/DEEPCRACK/13_2_1_1_1_DSC01478.png"
-    pipeline(binary_path)
+    binary_path = "crack_segmentation/transfer-learning-results/run_2/U2CRACKNET/13_2_1_1_1_DSC01478.png"
+    folder_path = "crack_segmentation/transfer-learning-results/run_2/UNET/"
+    for path in os.listdir(folder_path):
+        pipeline(folder_path + path)
     
