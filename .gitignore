@@ -1,5 +1,5 @@
 .vscode/
-crack_segmentation/
+crack_segmentation/models/
 src/image_processor/__pycache__/
 src/utils/__pycache__/
 src/__pycache__/
