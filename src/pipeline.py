@@ -191,7 +191,5 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
 
 if __name__ == "__main__":
     binary_path = "crack_segmentation/transfer-learning-results/run_2/U2CRACKNET/13_2_1_1_1_DSC01478.png"
-    folder_path = "crack_segmentation/transfer-learning-results/run_2/ACS/"
-    for path in os.listdir(folder_path):
-        pipeline(folder_path + path)
+    pipeline(binary_path)
     
