@@ -117,15 +117,16 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     - y_pred_merged: np.ndarray
     """
     # EXTRACT INFORMATION =======================================
-    info = binary_path.split('/')
-    name = info[-1][:-4]
-    species = None if "O. " not in info[-2] else info[-2]
-    model = info[-2] if info[-2] in ["U2CRACKNET", "DEEPCRACK", "FCN", "ACS", "RUC_NET", "SEGNET", 'UNET'] else ""
-    if species is None:
-        if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
-            species = "O. glaberrima"
-        else:
-            species = "O. sativa"
+    if binary_path:
+        info = binary_path.split('/')
+        name = info[-1][:-4]
+        species = None if "O. " not in info[-2] else info[-2]
+        model = info[-2] if info[-2] in ["U2CRACKNET", "DEEPCRACK", "FCN", "ACS", "RUC_NET", "SEGNET", 'UNET'] else ""
+        if species is None:
+            if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
+                species = "O. glaberrima"
+            else:
+                species = "O. sativa"
     # ===========================================================
     
     junction_img_merged = np.copy(skeleton_img)
@@ -175,7 +176,9 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     ax3.axis('off')
 
     plt.suptitle(f"Merging High Order Junctions\nPrevious: {n_initial} -> Merged: {n_merged}")
-    plt.savefig(f"images/pipeline/merge_pred/{model + '/' if model else model}{name}.jpg")
+    
+    if binary_path:
+        plt.savefig(f"images/pipeline/merge_pred/{model + '/' if model else model}{name}.jpg")
     
     if _plot:
         plt.show()
@@ -188,7 +191,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
 
 if __name__ == "__main__":
     binary_path = "crack_segmentation/transfer-learning-results/run_2/U2CRACKNET/13_2_1_1_1_DSC01478.png"
-    folder_path = "crack_segmentation/transfer-learning-results/run_2/UNET/"
+    folder_path = "crack_segmentation/transfer-learning-results/run_2/ACS/"
     for path in os.listdir(folder_path):
         pipeline(folder_path + path)
     
