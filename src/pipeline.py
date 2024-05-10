@@ -14,6 +14,11 @@ def pipeline(binary_path: str) -> None:
     - all junctions _1
     - main axis junctions _2
     - high order junctions: _3
+    
+    ## Idea:
+    - Remove false junctions, characterized by a cluster of close junctions, by using _merge_pred().
+    - Only apply _merge_pred() for high order junctions as main axis junctions can be close to each other.
+    - y_pred_1 = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged. So the code will be messy but makes sense.
     """
     # EXTRACT INFORMATION =======================================
     info = binary_path.split('/')
@@ -37,11 +42,24 @@ def pipeline(binary_path: str) -> None:
     # THINNING
     skeleton_img_1 = RicePanicle.Thinning.zhang_suen(binary_img)
     
-    # CLUSTERING
-    _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)
-    _, y_pred_1 = _merge_pred(y_pred_1, skeleton_img_1)
-    n_pred_1 = len(y_pred_1[y_pred_1 > 0])
+    # CLUSTERING (y_pred_1 = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged)
     
+    # --------------------------------------------------------------------------------------------------------------
+    # 1. y_pred_1
+    _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)
+    # 2. y_pred_2
+    skeleton_img_2 = generate_skeleton_main_axis(skeleton_img_1, ricepr_path)
+    _, y_pred_2 = RicePanicle.Clustering.crossing_number(skeleton_img_2, return_pred_=True)
+    # 3. y_pred_3 = (y_pred_1 - y_pred_2)
+    skeleton_img_3 = skeleton_img_1 - skeleton_img_2
+    y_pred_3 = y_pred_1 - y_pred_2
+    # 4. y_pred_3_merged
+    _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3)
+    # 5. y_pred_1 = y_pred_2 + y_pred_3_merged
+    y_pred_1 = y_pred_2 + y_pred_3_merged
+    # --------------------------------------------------------------------------------------------------------------
+    
+    n_pred_1 = len(y_pred_1[y_pred_1 > 0])
     
     # EVALUATION
     y_true_1 = generate_y_true(junction_resized)
@@ -50,11 +68,9 @@ def pipeline(binary_path: str) -> None:
     print(f"--------------------------> ALL JUNCTIONS\nf1: {f1}, precision: {pr}, recall: {rc}\n---------------------------------------------\n")
     
     # ===================MAIN AXIS===============================
-    # THINNING
-    skeleton_img_2 = generate_skeleton_main_axis(skeleton_img_1, ricepr_path)
+    # THINNING (Done Previously)
     
-    # CLUSTERING
-    _, y_pred_2 = RicePanicle.Clustering.crossing_number(skeleton_img_2, return_pred_=True)
+    # CLUSTERING (Done Previously)
     n_pred_2 = len(y_pred_2[y_pred_2 > 0])
     
     # EVALUATION
@@ -64,11 +80,10 @@ def pipeline(binary_path: str) -> None:
     print(f"--------------------------> MAIN AXIS JUNCTIONS\nf1: {f1}, precision: {pr}, recall: {rc}\n---------------------------------------------\n")
     
     # ===================HIGH ORDER===============================
-    # THINNING
-    skeleton_img_3 = skeleton_img_1 - skeleton_img_2  # May be needed for plotting
+    # THINNING (Done Previously)
     
     # CLUSTERING
-    y_pred_3 = y_pred_1 - y_pred_2
+    y_pred_3 = y_pred_1 - y_pred_2  # == y_pred_3_merged
     n_pred_3 = len(y_pred_3[y_pred_3 > 0])
     
     # EVALUATION
@@ -97,7 +112,8 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np
     - _plot=False
         
     ## Returns:
-    y_pred_merged: np.ndarray
+    - junction_img_merged: np.ndarray
+    - y_pred_merged: np.ndarray
     """
     junction_img_merged = np.copy(skeleton_img)
     y_pred_merged = np.copy(y_pred)
