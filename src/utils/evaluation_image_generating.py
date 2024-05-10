@@ -80,49 +80,12 @@ def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> n
     
     # Processing ===================================================
     skeleton_main_axis = np.copy(skeleton_img)
-    skeleton_main_axis[:y_min-6, :] = 0
-    skeleton_main_axis[y_max+6:, :] = 0
-    skeleton_main_axis[:, :x_min-6] = 0
-    skeleton_main_axis[:, x_max+6:] = 0
-    
-    skeleton_main_axis = _pruning(skeleton_main_axis, 6)
+    skeleton_main_axis[:y_min-2, :] = 0
+    skeleton_main_axis[y_max+2:, :] = 0
+    skeleton_main_axis[:, :x_min-2] = 0
+    skeleton_main_axis[:, x_max+2:] = 0
     
     return skeleton_main_axis   
-
-
-def generate_skeleton_high_order(skeleton_img: np.ndarray, ricepr_path: str) -> np.ndarray:
-    """
-    # Description
-    Generates a sub-skeleton image from the original skeleton -> It's a high order skeleton
-    
-    # Arguments
-    - skeleton_img: np.ndarray
-    - ricepr_path: str | example: data/original_ricepr/O. glaberrima/1_2_1_1_1_DSC01251.ricepr
-    
-    # Returns
-    skeleton_high_order: np.ndarray
-    """
-    # Extract information ==================================================
-    junction_resized = resize_junction(ricepr_path)
-    y_true_high_order = generate_y_true(junction_resized, main_axis=True)
-    white_px = np.argwhere(y_true_high_order > 0)
-    # ======================================================================
-    
-    # Creating boundary ==============================================
-    x_min, x_max = np.min(white_px[:, 1]), np.max(white_px[:, 1])
-    y_min, y_max = np.min(white_px[:, 0]), np.max(white_px[:, 0])
-    # ================================================================
-    
-    # Processing ===================================================
-    skeleton_main_axis = np.copy(skeleton_img)
-    skeleton_main_axis[:y_min-4, :] = 0
-    skeleton_main_axis[y_max+4:, :] = 0
-    skeleton_main_axis[:, :x_min-4] = 0
-    skeleton_main_axis[:, x_max+4:] = 0
-    
-    skeleton_high_order = skeleton_img - skeleton_main_axis
-    
-    return skeleton_high_order
 
 
 def _pruning(skeleton_img: np.ndarray, min_length: int) -> np.ndarray:
