@@ -89,7 +89,7 @@ def pipeline(binary_path: str) -> None:
 def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np.ndarray:
     """
     ## Description
-    Merging close predicted junctions into one junction.
+    Merging close predicted junctions into one junction. Should only be applied to high order junctions.
 
     ## Argument:
     - y_pred np.ndarray
@@ -111,7 +111,9 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np
     for label in np.unique(labels):
         if label != -1:
             pts = white_px[labels == label]
-            y_pred_merged[pts] = 0
+            for a, b in pts:
+                y_pred_merged[a, b] = 0
+                
             x, y = np.mean(pts, axis=0).astype('i')
             y_pred_merged[x, y] = 255
     
