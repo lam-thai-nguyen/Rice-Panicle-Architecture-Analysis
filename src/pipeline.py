@@ -39,7 +39,7 @@ def pipeline(binary_path: str) -> None:
     
     # CLUSTERING
     _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)
-    y_pred_1 = _merge_pred(y_pred_1)
+    _, y_pred_1 = _merge_pred(y_pred_1, skeleton_img_1)
     n_pred_1 = len(y_pred_1[y_pred_1 > 0])
     
     
@@ -86,18 +86,22 @@ def pipeline(binary_path: str) -> None:
         print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
 
 
-def _merge_pred(y_pred: np.ndarray) -> np.ndarray:
+def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, _plot=False) -> np.ndarray:
     """
     ## Description
     Merging close predicted junctions into one junction.
 
     ## Argument:
-    y_pred np.ndarray
+    - y_pred np.ndarray
+    - skeleton_img: np.ndarray
+    - _plot=False
         
     ## Returns:
     y_pred_merged: np.ndarray
     """
+    junction_img_merged = np.copy(skeleton_img)
     y_pred_merged = np.copy(y_pred)
+    
     white_px = np.argwhere(y_pred_merged > 0)
     
     db = DBSCAN(eps=7, min_samples=3).fit(white_px)
@@ -114,24 +118,33 @@ def _merge_pred(y_pred: np.ndarray) -> np.ndarray:
     white_px_merged = np.argwhere(y_pred_merged > 0)
             
     # Visualization
-    bg = np.zeros((512, 512))
-    
-    _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-    ax1.imshow(bg, cmap='gray')
-    ax1.scatter(white_px[:, 1], white_px[:, 0], c='w', s=5)
-    
-    mask = labels != -1
-    ax2.imshow(bg, cmap='gray')
-    colors = ['r' if label == 0 else 'b' if label == 1 else 'y' for label in labels[mask]]
-    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=colors, s=5)
-    ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='w', s=5)
-    
-    ax3.imshow(bg, cmap='gray')
-    ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='w', s=5)
+    if _plot:
+        bg = np.zeros((512, 512))
+        
+        _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+        ax1.imshow(bg, cmap='gray')
+        ax1.scatter(white_px[:, 1], white_px[:, 0], c='w', s=5)
+        ax1.axis('off')
+        
+        mask = labels != -1
+        ax2.imshow(bg, cmap='gray')
+        colors = ['r' if label == 0 else 'b' if label == 1 else 'y' for label in labels[mask]]
+        ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=colors, s=5)
+        ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='w', s=5)
+        ax2.axis('off')
+        
+        ax3.imshow(bg, cmap='gray')
+        ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='w', s=5)
+        ax3.axis('off')
 
-    plt.show()
+        plt.suptitle("Merging Close High Order Junctions")
+        plt.show()
     
-    return y_pred_merged
+    junction_img_merged = cv2.cvtColor(junction_img_merged, cv2.COLOR_GRAY2RGB)
+    for i in range(len(white_px_merged)):
+        cv2.circle(junction_img_merged, (white_px_merged[i][1], white_px_merged[i][0]), 2, (255, 0, 0), -1)
+    
+    return junction_img_merged, y_pred_merged
 
 if __name__ == "__main__":
     binary_path = "crack_segmentation/transfer-learning-results/run_2/DEEPCRACK/13_2_1_1_1_DSC01478.png"
