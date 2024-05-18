@@ -38,11 +38,13 @@
 │       └── bounding_boxes.py
 ├── images/
 │   ├── annotated
-│   ├── binary_images
 │   ├── bounding_boxes
-│   ├── junction_images
-│   ├── raw_images_512
-│   └── skeleton_images
+│   ├── pipeline/
+│   │   ├── junction_image
+│   │   ├── junction_raw_image
+│   │   ├── merge_pred
+│   │   └── skeleton_image
+│   └── raw_images_512
 └── README.md
 ```
 
