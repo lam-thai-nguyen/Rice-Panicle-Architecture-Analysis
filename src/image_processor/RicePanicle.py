@@ -1,3 +1,7 @@
+###########################
+# Author: Lam Thai Nguyen #
+###########################
+
 import numpy as np
 from .thinning import _zhang_suen, _gradient_based_optimization
 from .clustering import _crossing_number, _dbscan

@@ -1,3 +1,7 @@
+###########################
+# Author: Lam Thai Nguyen #
+###########################
+
 import xml.etree.ElementTree as ET
 import cv2
 

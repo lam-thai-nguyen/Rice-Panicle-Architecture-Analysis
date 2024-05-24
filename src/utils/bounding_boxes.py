@@ -1,3 +1,7 @@
+###########################
+# Author: Lam Thai Nguyen #
+###########################
+
 import os
 import numpy as np  
 import cv2

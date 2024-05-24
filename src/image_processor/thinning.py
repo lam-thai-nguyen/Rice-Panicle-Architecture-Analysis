@@ -1,3 +1,7 @@
+##############################################
+# Authors: Lam Thai Nguyen & Trung Kien Pham #
+##############################################
+
 import numpy as np
 import cv2
 from skimage.morphology import skeletonize

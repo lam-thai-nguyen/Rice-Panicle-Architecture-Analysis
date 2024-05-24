@@ -1,3 +1,7 @@
+###########################
+# Author: Lam Thai Nguyen #
+###########################
+
 import numpy as np
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
