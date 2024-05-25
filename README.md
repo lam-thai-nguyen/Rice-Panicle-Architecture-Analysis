@@ -8,11 +8,6 @@
 
 ```
 .
-├── crack_segmentation/
-│   ├── models
-│   └── transfer-learning-results/
-│       ├── run_1
-│       └── run_2
 ├── data/
 │   ├── metadata
 │   ├── original_images
@@ -39,6 +34,9 @@
 ├── images/
 │   ├── annotated
 │   ├── bounding_boxes
+│   ├── model_predictions/
+│   │   ├── run_1
+│   │   └── run_2
 │   ├── pipeline/
 │   │   ├── junction_image
 │   │   ├── junction_raw_image
