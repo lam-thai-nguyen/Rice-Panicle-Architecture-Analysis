@@ -1,5 +1,7 @@
 # Architecture Analysis of Rice Panicle using Deep Learning
 
+## Conference: [**APSIPA ASC 2024**](http://www.apsipa2024.org/index.html)
+
 ## Collaborators
 
 **Lam Thai Nguyen** and **Trung Kien Pham**.
@@ -55,3 +57,7 @@
 ## Examples
 
 - Useful code examples are provided [HERE](src/examples).
+
+## Call For Paper
+
+![Alt text](<APSIPA ASC 2024/CFP/CFP.png>)
