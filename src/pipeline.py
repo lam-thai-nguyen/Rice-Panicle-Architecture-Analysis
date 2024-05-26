@@ -8,11 +8,12 @@ import cv2
 import numpy as np
 from sklearn.cluster import DBSCAN
 from image_processor.RicePanicle import RicePanicle
+from image_processor.AccuracyManager import AccuracyManager
 from utils.ricepr_manipulate import resize_junction
-from utils.evaluation_image_generating import _pruning, generate_y_true, generate_skeleton_main_axis
+from utils.evaluation_image_generating import generate_y_true, generate_skeleton_main_axis
 
 
-def pipeline(binary_path: str) -> None:
+def pipeline(binary_path: str) -> RicePanicle.DetectionAccuracy:
     """
     ## Naming convention:
     - all junctions _1
@@ -23,6 +24,9 @@ def pipeline(binary_path: str) -> None:
     - Remove false junctions, characterized by a cluster of close junctions, by using _merge_pred().
     - Only apply _merge_pred() for high order junctions as main axis junctions can be close to each other.
     - y_pred_1 = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged. So the code will be messy but makes sense.
+    
+    ## Returns:
+    - RicePanicle.DetectionAccuracy object.
     """
     # EXTRACT INFORMATION =======================================
     info = binary_path.split('/')
@@ -68,8 +72,8 @@ def pipeline(binary_path: str) -> None:
     # EVALUATION
     y_true_1 = generate_y_true(junction_resized)
     n_true_1 = len(y_true_1[y_true_1 > 0])
-    f1, pr, rc = RicePanicle.Evaluation.f1_score(y_true_1, y_pred_1, _return_metrics=True)
-    print(f"--------------------------> ALL JUNCTIONS\nf1: {f1}, precision: {pr}, recall: {rc}\n---------------------------------------------\n")
+    f1_1, pr_1, rc_1 = RicePanicle.Evaluation.f1_score(y_true_1, y_pred_1, _return_metrics=True)
+    print(f"--------------------------> ALL JUNCTIONS\nf1: {f1_1}, precision: {pr_1}, recall: {rc_1}\n---------------------------------------------\n")
     
     # ===================MAIN AXIS===============================
     # THINNING (Done Previously)
@@ -80,8 +84,8 @@ def pipeline(binary_path: str) -> None:
     # EVALUATION
     y_true_2 = generate_y_true(junction_resized, main_axis=True)
     n_true_2 = len(y_true_2[y_true_2 > 0])
-    f1, pr, rc = RicePanicle.Evaluation.f1_score(y_true_2, y_pred_2, _return_metrics=True)
-    print(f"--------------------------> MAIN AXIS JUNCTIONS\nf1: {f1}, precision: {pr}, recall: {rc}\n---------------------------------------------\n")
+    f1_2, pr_2, rc_2 = RicePanicle.Evaluation.f1_score(y_true_2, y_pred_2, _return_metrics=True)
+    print(f"--------------------------> MAIN AXIS JUNCTIONS\nf1: {f1_2}, precision: {pr_2}, recall: {rc_2}\n---------------------------------------------\n")
     
     # ===================HIGH ORDER===============================
     # THINNING (Done Previously)
@@ -93,8 +97,8 @@ def pipeline(binary_path: str) -> None:
     # EVALUATION
     y_true_3 = generate_y_true(junction_resized, high_order=True)
     n_true_3 = len(y_true_3[y_true_3 > 0])
-    f1, pr, rc = RicePanicle.Evaluation.f1_score(y_true_3, y_pred_3, _return_metrics=True)
-    print(f"--------------------------> HIGH ORDER JUNCTIONS\nf1: {f1}, precision: {pr}, recall: {rc}\n---------------------------------------------")
+    f1_3, pr_3, rc_3 = RicePanicle.Evaluation.f1_score(y_true_3, y_pred_3, _return_metrics=True)
+    print(f"--------------------------> HIGH ORDER JUNCTIONS\nf1: {f1_3}, precision: {pr_3}, recall: {rc_3}\n---------------------------------------------")
     
     # ==============CHECK IF THE PROCESS IS TRUSTWORTHY===================
     print(f"\t\t\t\t\t\t\t\t\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} + {n_true_3} -> {n_true_1 == n_true_2 + n_true_3}")
@@ -103,6 +107,16 @@ def pipeline(binary_path: str) -> None:
         print("\t\t\t\t\t\t\t\t\t\t\t TRUSTWORTHY!\n")
     else:
         print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
+        
+    # Save accuracy
+    detection_accuracy = RicePanicle.DetectionAccuracy(
+        file_path=binary_path,
+        all_junctions=[f1_1, pr_1, rc_1],
+        main_axis=[f1_2, pr_2, rc_2],
+        high_order=[f1_3, pr_3, rc_3]
+        )
+    
+    return detection_accuracy
 
 
 def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, _plot=False) -> np.ndarray:
@@ -193,7 +207,35 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     
     return junction_img_merged, y_pred_merged
 
+
+def test_manager():
+    manager = AccuracyManager()
+    rp1 = RicePanicle.DetectionAccuracy('13_2_1_1_1_DSC01478', (0.67, 0.64, 0.69), (0.81, 0.81, 0.81), (0.62, 0.59, 0.65))
+    rp2 = RicePanicle.DetectionAccuracy('13_2_1_1_1_DSC01479', (0.75, 0.70, 0.80), (0.85, 0.85, 0.85), (0.68, 0.66, 0.70))
+    rp1.show()
+    rp2.show()
+    manager.add(rp1)
+    manager.add(rp2)
+    manager.show()
+    try:
+        manager.save_as_csv("test.csv")
+    except:
+        print("File already created.")
+
+
+def main():
+    score_manager = AccuracyManager()
+    pred_folder = "images/model_predictions/run_2/U2CRACKNET"
+    model = pred_folder.split('/')[-1]
+    for pred in os.listdir(pred_folder):
+        binary_path = pred_folder + '/' + pred
+        detection_accuracy = pipeline(binary_path)
+        score_manager.add(detection_accuracy)
+        
+    score_manager.save_as_csv(f"data/junction_detection_result/O. glaberrima/{model}.csv")
+    print(f"File saved: data/junction_detection_result/O. glaberrima/{model}.csv")
+    
+
 if __name__ == "__main__":
-    binary_path = "crack_segmentation/transfer-learning-results/run_2/U2CRACKNET/13_2_1_1_1_DSC01478.png"
-    pipeline(binary_path)
+    main()
     
