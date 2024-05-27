@@ -34,13 +34,23 @@ def main():
 
     for f in os.listdir(FOLDER):
         if f.startswith(f"{PERSON}_{EVALUATION_CRITERIA}"):
+            print(f"==>> Reading {f}")
             manager.read_fold(f"{FOLDER}/{f}")
         
     model_A, model_B = manager.model_selection()
     print(f"==>> model_A: {model_A}")
     print(f"==>> model_B: {model_B}")
+    
+
+def test_manager_fold_tracker():
+    manager = AccuracyManager()
+    for _ in range(5):
+        manager.read_fold(f"{FOLDER}/{PERSON}_{EVALUATION_CRITERIA}_1.xlsx")
+    assert manager.fold_A_tracker is not None
+    assert manager.fold_B_tracker is not None
+    assert len(manager.fold_A_tracker["DEEPCRACK"]["F1"]) == 5
 
 
 if __name__ == "__main__":
-    main()  
+    main()
     
