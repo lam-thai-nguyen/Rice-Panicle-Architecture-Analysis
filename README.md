@@ -13,26 +13,27 @@
 ├── data/
 │   ├── metadata
 │   ├── original_images
-│   └── original_ricepr
+│   ├── original_ricepr
+│   ├── junction_detection_result
+│   └── segmentation_result
 ├── src/
-│   ├── __init__.py
 │   ├── pipeline.py
 │   ├── image_processor/
-│   │   ├── __init__.py
 │   │   ├── RicePanicle.py
 │   │   ├── thinning.py
 │   │   ├── skeletonize.py
 │   │   ├── clustering.py
-│   │   └── evaluation.py
+│   │   ├── evaluation.py
+│   │   └── AccuracyManager.py
 │   ├── examples/
 │   │   ├── image_annotation_segmentation.ipynb
 │   │   └── image_processing_pipeline.ipynb
 │   └── utils/
-│       ├── __init__.py
 │       ├── evaluation_image_generating.py
 │       ├── ricepr_manipulate.py
 │       ├── json2binary.py
-│       └── bounding_boxes.py
+│       ├── bounding_boxes.py
+│       └── model_selection.py
 ├── images/
 │   ├── annotated
 │   ├── bounding_boxes
