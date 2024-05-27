@@ -2,12 +2,15 @@
 # Author: Lam Thai Nguyen #
 ###########################
 
+import statistics
 import pandas as pd
 from .RicePanicle import RicePanicle
 
 
 class AccuracyManager:
     num_entries = 0
+    fold_A_tracker = None
+    fold_B_tracker = None
 
     def __init__(self):
         self.scores = dict()
@@ -61,3 +64,44 @@ class AccuracyManager:
         df.index.name = "image_name"
         df.to_csv(save_path)
                 
+    def read_fold(self, fold_path: str) -> None:
+            
+        self._read_fold_A(fold_path)
+        self._read_fold_B(fold_path)
+        
+    def _read_fold_A(self, fold_path: str) -> None:
+        if self.fold_A_tracker is None:
+            main_keys = ['DEEPCRACK', 'FCN', 'SEGNET', 'UNET', 'U2CRACKNET', 'ACS', 'RUC_NET']
+            subkeys = ['precision', 'recall', 'F1']
+            self.fold_A_tracker = {key: {subkey: [] for subkey in subkeys} for key in main_keys}
+        
+        df = pd.read_excel(fold_path)
+        for _, row in df.iterrows():
+            name_model = row['Name model']
+            precision = row['precision']
+            recall = row['recall']
+            f1 = row['F1']
+            self.fold_A_tracker[name_model]['precision'].append(precision)
+            self.fold_A_tracker[name_model]['recall'].append(recall)
+            self.fold_A_tracker[name_model]['F1'].append(f1)
+            
+    def _read_fold_B(self, fold_path: str) -> None:
+        ...
+        
+    def _model_A_selection(self) -> str:
+        if self.fold_A_tracker is None:
+            return
+        
+        mean_dict = {model: {metric: statistics.mean(values) for metric, values in metrics.items()} for model, metrics in self.fold_A_tracker.items()}
+        model_A = max(mean_dict, key=lambda x: mean_dict[x]['F1'])
+        print(mean_dict[model_A])
+        
+        return model_A
+            
+    def _model_B_selection(self) -> str:
+        if self.fold_B_tracker is None:
+            return
+        ...
+        
+    def model_selection(self) -> list[str]:
+        return [self._model_A_selection(), self._model_B_selection()]
