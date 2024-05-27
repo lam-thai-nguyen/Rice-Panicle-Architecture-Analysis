@@ -110,7 +110,7 @@ def pipeline(binary_path: str) -> RicePanicle.DetectionAccuracy:
         
     # Save accuracy
     detection_accuracy = RicePanicle.DetectionAccuracy(
-        file_path=binary_path,
+        name=name,
         all_junctions=[f1_1, pr_1, rc_1],
         main_axis=[f1_2, pr_2, rc_2],
         high_order=[f1_3, pr_3, rc_3]
@@ -211,7 +211,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
 def test_manager():
     manager = AccuracyManager()
     rp1 = RicePanicle.DetectionAccuracy('13_2_1_1_1_DSC01478', (0.67, 0.64, 0.69), (0.81, 0.81, 0.81), (0.62, 0.59, 0.65))
-    rp2 = RicePanicle.DetectionAccuracy('13_2_1_1_1_DSC01479', (0.75, 0.70, 0.80), (0.85, 0.85, 0.85), (0.68, 0.66, 0.70))
+    rp2 = RicePanicle.DetectionAccuracy('13_2_1_1_1_DSC01479', (0.75, 0.70, 0.80), (0.85, 0.85, 0.85), (0.68, 0.66, 0.70), model="U2CRACKNET")
     rp1.show()
     rp2.show()
     manager.add(rp1)
