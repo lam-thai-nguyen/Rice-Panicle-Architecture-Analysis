@@ -118,7 +118,7 @@ class AccuracyManager:
             return
         
         (fold_id, model_B, (F1, precision, recall), aver_F1) = max(self.fold_B_tracker, key=lambda x: x[-1])
-        print(f"Highest averaged fold: #{fold_id} | Model: {model_B} | F1: {F1} | Precision: {precision} | Recall: {recall} | Aver_F1: {aver_F1}")
+        print(f"Highest averaged fold: #{fold_id} | Aver_F1: {aver_F1} | Model: {model_B} | F1: {F1} | Precision: {precision} | Recall: {recall}")
         
         return model_B
         
