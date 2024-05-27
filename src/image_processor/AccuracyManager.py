@@ -86,7 +86,22 @@ class AccuracyManager:
             self.fold_A_tracker[name_model]['F1'].append(f1)
             
     def _read_fold_B(self, fold_path: str) -> None:
-        ...
+        if self.fold_B_tracker is None:
+            self.fold_B_tracker = list()
+            
+        fold_id = fold_path.split('/')[-1].split('.')[0][-1]
+            
+        df = pd.read_excel(fold_path)
+        
+        idx_max = df["F1"].idxmax()
+        name_model = df["Name model"][idx_max]
+        F1 = df["F1"][idx_max]
+        precision = df["precision"][idx_max]
+        recall = df["recall"][idx_max]
+        
+        aver_F1 = statistics.mean(df["F1"])
+        entry = [fold_id, name_model, (precision, recall, F1), aver_F1]
+        self.fold_B_tracker.append(entry)
         
     def _model_A_selection(self) -> str:
         if self.fold_A_tracker is None:
@@ -94,14 +109,18 @@ class AccuracyManager:
         
         mean_dict = {model: {metric: statistics.mean(values) for metric, values in metrics.items()} for model, metrics in self.fold_A_tracker.items()}
         model_A = max(mean_dict, key=lambda x: mean_dict[x]['F1'])
-        print(mean_dict[model_A])
+        print(f"Highest performance model: {model_A} | Aver_F1: {mean_dict[model_A]['F1']} | Aver_Precision: {mean_dict[model_A]['precision']} | Aver_Recall: {mean_dict[model_A]['recall']}")
         
         return model_A
             
     def _model_B_selection(self) -> str:
         if self.fold_B_tracker is None:
             return
-        ...
+        
+        (fold_id, model_B, (F1, precision, recall), aver_F1) = max(self.fold_B_tracker, key=lambda x: x[-1])
+        print(f"Highest averaged fold: #{fold_id} | Model: {model_B} | F1: {F1} | Precision: {precision} | Recall: {recall} | Aver_F1: {aver_F1}")
+        
+        return model_B
         
     def model_selection(self) -> list[str]:
         return [self._model_A_selection(), self._model_B_selection()]
