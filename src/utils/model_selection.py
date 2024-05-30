@@ -48,7 +48,7 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description="Model selection script")
     argparser.add_argument("person", type=str, help="T: Thai, K: Kien ==>> version of person", choices=["T", "K"])
     argparser.add_argument("evaluation_criterion", type=int, help="1: O. glaberrima, 2: O. sativa, 3: O. glaberrima and O. sativa", choices=[1, 2, 3])
-    argparser.add_argument("-f", "--folder", type=str, help="Folder of segmentation results ==>> xlsx files", default="data/segmentation_result")
+    argparser.add_argument("-f", "--folder", type=str, help="Folder of segmentation results ==>> xlsx files", default="data/segmentation_result", metavar="path")
     
     args = argparser.parse_args()
     person, evaluation_criterion, folder = args.person, args.evaluation_criterion, args.folder
