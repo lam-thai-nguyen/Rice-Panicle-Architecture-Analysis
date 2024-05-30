@@ -18,39 +18,48 @@ Evaluation criteria:
 """ How to run this code as a module: python -m src.utils.model_selection """
 
 import os
-import pandas as pd
-import numpy as np
+import argparse
 from ..image_processor.AccuracyManager import AccuracyManager
 
 
-# Change these hyperparameters accordingly
-PERSON = "K"
-EVALUATION_CRITERIA = 1
-FOLDER = "data/segmentation_result"
-
-
-def main():
+def main(person, evaluation_criterion, folder):
     manager = AccuracyManager()
 
-    for f in os.listdir(FOLDER):
-        if f.startswith(f"{PERSON}_{EVALUATION_CRITERIA}"):
+    for f in os.listdir(folder):
+        if f.startswith(f"{person}_{evaluation_criterion}"):
             print(f"==>> Reading {f}")
-            manager.read_fold(f"{FOLDER}/{f}")
+            manager.read_fold(f"{folder}/{f}")
         
     model_A, model_B = manager.model_selection()
     print(f"==>> model_A: {model_A}")
     print(f"==>> model_B: {model_B}")
     
 
-def test_manager_fold_tracker():
+def test_manager_fold_tracker(person, evaluation_criterion, folder):
     manager = AccuracyManager()
     for _ in range(5):
-        manager.read_fold(f"{FOLDER}/{PERSON}_{EVALUATION_CRITERIA}_1.xlsx")
+        manager.read_fold(f"{folder}/{person}_{evaluation_criterion}_1.xlsx")
     assert manager.fold_A_tracker is not None
     assert manager.fold_B_tracker is not None
     assert len(manager.fold_A_tracker["DEEPCRACK"]["F1"]) == 5
 
 
 if __name__ == "__main__":
-    main()
+    argparser = argparse.ArgumentParser(description="Model selection script")
+    argparser.add_argument("person", type=str, help="T: Thai, K: Kien ==>> version of person", choices=["T", "K"])
+    argparser.add_argument("evaluation_criterion", type=int, help="1: O. glaberrima, 2: O. sativa, 3: O. glaberrima and O. sativa", choices=[1, 2, 3])
+    argparser.add_argument("-f", "--folder", type=str, help="Folder of segmentation results ==>> xlsx files", default="data/segmentation_result")
+    
+    args = argparser.parse_args()
+    person, evaluation_criterion, folder = args.person, args.evaluation_criterion, args.folder
+    people = {"T": "Thai", "K": "Kien"}
+    criteria = {"1": "O. glaberrima", "2": "O. sativa", "3": "O. glaberrima and O. sativa"}
+    
+    print("".center(50, "="))
+    print(f"==>> person: {person}, {people[person]}")
+    print(f"==>> evaluation_criterion: {evaluation_criterion}. {criteria[str(evaluation_criterion)]}")
+    print(f"==>> folder: {folder}")
+    print("".center(50, "="))
+    
+    main(person, evaluation_criterion, folder)
     
