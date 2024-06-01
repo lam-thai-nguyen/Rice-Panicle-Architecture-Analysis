@@ -23,12 +23,18 @@ from ..image_processor.AccuracyManager import AccuracyManager
 
 
 def main(person, evaluation_criterion, folder):
+    read = False
     manager = AccuracyManager()
 
     for f in os.listdir(folder):
         if f.startswith(f"{person}_{evaluation_criterion}"):
             print(f"==>> Reading {f}")
+            read = True
             manager.read_fold(f"{folder}/{f}")
+    
+    if not read:
+        print(f"==>> No file found!")
+        return
         
     model_A, model_B = manager.model_selection()
     print(f"==>> model_A: {model_A}")
@@ -46,13 +52,13 @@ def test_manager_fold_tracker(person, evaluation_criterion, folder):
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description="Model selection script")
-    argparser.add_argument("person", type=str, help="T: Thai, K: Kien ==>> version of person", choices=["T", "K"])
+    argparser.add_argument("person", type=str, help="T: Thai, K: Kien, TK: mean(T, K) ==>> version of person", choices=["T", "K", "TK"])
     argparser.add_argument("evaluation_criterion", type=int, help="1: O. glaberrima, 2: O. sativa, 3: O. glaberrima and O. sativa", choices=[1, 2, 3])
     argparser.add_argument("-f", "--folder", type=str, help="Folder of segmentation results ==>> xlsx files (default: data/segmentation_result)", default="data/segmentation_result", metavar="path")
     
     args = argparser.parse_args()
     person, evaluation_criterion, folder = args.person, args.evaluation_criterion, args.folder
-    people = {"T": "Thai", "K": "Kien"}
+    people = {"T": "Thai", "K": "Kien", "TK": "mean(Thai, Kien)"}
     criteria = {"1": "O. glaberrima", "2": "O. sativa", "3": "O. glaberrima and O. sativa"}
     
     print("".center(50, "="))
