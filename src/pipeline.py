@@ -3,6 +3,7 @@
 ###########################
 
 import os
+import argparse
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
@@ -145,6 +146,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
                 species = "O. glaberrima"
             else:
                 species = "O. sativa"
+        original_img_512 = cv2.imread(f"images/raw_images_512/{species}/{name}.jpg")
     # ===========================================================
     
     junction_img_merged = np.copy(skeleton_img)
@@ -175,28 +177,28 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'brown']
     colors_dict = {i: colors[i] for i in range(10)}
     
-    _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-    ax1.imshow(bg, cmap='gray')
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 10))
+    # ax1.imshow(bg, cmap='gray')
+    ax1.imshow(original_img_512)
     ax1.scatter(white_px[:, 1], white_px[:, 0], c='w', s=5)
     ax1.set_title("Pre-merged High Order Junctions.")
     ax1.axis('off')
     
-    ax2.imshow(bg, cmap='gray')
+    # ax2.imshow(bg, cmap='gray')
+    ax2.imshow(original_img_512)
     cluster_colors = [colors_dict[label % 10] for label in labels[mask]]
     ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=cluster_colors, s=5)
     ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='w', s=5)
     ax2.set_title("Clusters to be merged.")
     ax2.axis('off')
     
-    ax3.imshow(bg, cmap='gray')
+    # ax3.imshow(bg, cmap='gray')
+    ax3.imshow(original_img_512)
     ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='w', s=5)
     ax3.set_title("Clusters merged as one junction.")
     ax3.axis('off')
 
     plt.suptitle(f"Merging High Order Junctions\nPrevious: {n_initial} -> Merged: {n_merged}")
-    
-    if binary_path:
-        plt.savefig(f"images/pipeline/merge_pred/{model + '/' if model else model}{name}.jpg")
     
     if _plot:
         plt.show()
@@ -206,6 +208,10 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
         cv2.circle(junction_img_merged, (white_px_merged[i][1], white_px_merged[i][0]), 2, (255, 0, 0), -1)
     
     return junction_img_merged, y_pred_merged
+
+
+def plot_pipeline():
+    pass
 
 
 def test_manager():
@@ -218,22 +224,38 @@ def test_manager():
     manager.add(rp2)
     manager.show()
     try:
-        manager.save_as_csv("test.csv")
+        manager.save_as_excel("test.xlsx")
     except:
         print("File already created.")
 
 
 def main():
+    argparser = argparse.ArgumentParser(description="Pipeline script")
+    argparser.add_argument("person", type=str, help="T: Thai, K: Kien ==>> version of person", choices=["T", "K"])
+    argparser.add_argument("evaluation_criterion", type=int, help="1: O. glaberrima, 2: O. sativa, 3: O. glaberrima and O. sativa", choices=[1, 2, 3])
+    argparser.add_argument("-m", "--model", type=str, help="Model name", choices=["U2CRACKNET", "SEGNET", "FCN", "DEEPCRACK", "RUC_NET", "ACS", "UNET"], default="UNET")
+    argparser.add_argument("-s", "--save-as-excel", type=bool, choices=[True, False], default=False)
+    args = argparser.parse_args()
+    
+    person, criterion, model, save_as_excel = args.person, args.evaluation_criterion, args.model, args.save_as_excel
+    
     score_manager = AccuracyManager()
-    pred_folder = "images/model_predictions/run_2/U2CRACKNET"
-    model = pred_folder.split('/')[-1]
+    pred_folder = "images/model_predictions"
+    
     for pred in os.listdir(pred_folder):
-        binary_path = pred_folder + '/' + pred
+        if pred.startswith(f"{person}_{criterion}"):
+            images_path = pred_folder + '/' + pred
+            print(f"==>> images_path: {images_path}")
+            break
+    
+    for image_name in os.listdir(images_path):        
+        binary_path = images_path + '/' + image_name
         detection_accuracy = pipeline(binary_path)
         score_manager.add(detection_accuracy)
         
-    score_manager.save_as_csv(f"data/junction_detection_result/O. glaberrima/{model}.csv")
-    print(f"File saved: data/junction_detection_result/O. glaberrima/{model}.csv")
+    if save_as_excel:
+        score_manager.save_as_excel(f"data/junction_detection_result/{person}_{criterion}_{model}.xlsx")
+        print(f"File saved: data/junction_detection_result/{person}_{criterion}_{model}.xlsx")
     
 
 if __name__ == "__main__":
