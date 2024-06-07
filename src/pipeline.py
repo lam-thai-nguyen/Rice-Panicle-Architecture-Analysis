@@ -60,14 +60,14 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     name, _, ricepr_path, raw_img_512 = extract_info(binary_path)
     binary_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     junction_resized = resize_junction(ricepr_path)
+    print("".center(50, "="))
+    print(f"processing {name}...")
     
     # ==================ALL JUNCTIONS============================
-    # THINNING
-    skeleton_img_1 = RicePanicle.Thinning.zhang_suen(binary_img)
+    skeleton_img_1 = RicePanicle.Thinning.zhang_suen(binary_img)  # THINNING
     
     # CLUSTERING (y_pred_1_merged = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged)
-    
-    # --------------------------------------------------------------------------------------------------------------
+    ##########################################################################################################
     # 1. y_pred_1
     _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)
     # 2. y_pred_2
@@ -80,7 +80,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3, binary_path, person=person, criterion=criterion)
     # 5. y_pred_1_merged = y_pred_2 + y_pred_3_merged
     y_pred_1_merged = y_pred_2 + y_pred_3_merged
-    # --------------------------------------------------------------------------------------------------------------
+    ##########################################################################################################
     
     n_pred_1 = len(y_pred_1_merged[y_pred_1_merged > 0])
     
@@ -88,7 +88,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     y_true_1 = generate_y_true(junction_resized)
     n_true_1 = len(y_true_1[y_true_1 > 0])
     f1_1, pr_1, rc_1 = RicePanicle.Evaluation.f1_score(y_true_1, y_pred_1_merged, _return_metrics=True)
-    print(f"--------------------------> ALL JUNCTIONS\nf1: {f1_1}, precision: {pr_1}, recall: {rc_1}\n---------------------------------------------\n")
+    print(f"1 ==>> f1: {f1_1}, precision: {pr_1}, recall: {rc_1}")
     
     # ===================MAIN AXIS===============================
     # THINNING (Done Previously)
@@ -100,7 +100,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     y_true_2 = generate_y_true(junction_resized, main_axis=True)
     n_true_2 = len(y_true_2[y_true_2 > 0])
     f1_2, pr_2, rc_2 = RicePanicle.Evaluation.f1_score(y_true_2, y_pred_2, _return_metrics=True)
-    print(f"--------------------------> MAIN AXIS JUNCTIONS\nf1: {f1_2}, precision: {pr_2}, recall: {rc_2}\n---------------------------------------------\n")
+    print(f"2 ==>> f1: {f1_2}, precision: {pr_2}, recall: {rc_2}")
     
     # ===================HIGH ORDER===============================
     # THINNING (Done Previously)
@@ -113,7 +113,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     y_true_3 = generate_y_true(junction_resized, high_order=True)
     n_true_3 = len(y_true_3[y_true_3 > 0])
     f1_3, pr_3, rc_3 = RicePanicle.Evaluation.f1_score(y_true_3, y_pred_3, _return_metrics=True)
-    print(f"--------------------------> HIGH ORDER JUNCTIONS\nf1: {f1_3}, precision: {pr_3}, recall: {rc_3}\n---------------------------------------------")
+    print(f"3 ==>> f1: {f1_3}, precision: {pr_3}, recall: {rc_3}")
     
     # ==============CHECK IF THE PROCESS IS TRUSTWORTHY===================
     print(f"\t\t\t\t\t\t\t\t\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} + {n_true_3} -> {n_true_1 == n_true_2 + n_true_3}")
@@ -123,14 +123,16 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     else:
         print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
         
+    print("".center(50, "="))
+    
     # Plot pipeline
     plot_pipeline(
         file_name=name,
         raw_img_512=raw_img_512,
         binary_img=binary_img,
-        all_junctions=[skeleton_img_1, y_pred_1_merged],
-        main_axis=[skeleton_img_2, y_pred_2],
-        high_order=[skeleton_img_3, y_pred_3],
+        all_junctions=[skeleton_img_1, y_pred_1_merged, y_true_1],
+        main_axis=[skeleton_img_2, y_pred_2, y_true_2],
+        high_order=[skeleton_img_3, y_pred_3, y_true_3],
         person=person,
         criterion=criterion
     )
@@ -188,8 +190,6 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     # Visualization
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
     mask = labels != -1
-    colors = ['w', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'brown']
-    colors_dict = {i: colors[i] for i in range(10)}
     
     ax1.imshow(raw_img_512)
     ax1.scatter(white_px[:, 1], white_px[:, 0], c='r', s=5)
@@ -197,8 +197,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     ax1.axis('off')
     
     ax2.imshow(raw_img_512)
-    cluster_colors = [colors_dict[label % 10] for label in labels[mask]]
-    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=cluster_colors, s=5)
+    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c='w', s=5)  
     ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='r', s=5)
     ax2.set_title("Clusters to be merged.")
     ax2.axis('off')
@@ -237,13 +236,13 @@ def plot_pipeline(
     Args:
         raw_img_512 (np.ndarray)
         binary_img (np.ndarray): segmentation result
-        all_junctions (list): [skeleton_img_1, y_pred_1]
-        main_axis (list): [skeleton_img_2, y_pred_2]
-        high_order (list): [skeleton_img_3, y_pred_3]
+        all_junctions (list): [skeleton_img_1, y_pred_1, y_true_1]
+        main_axis (list): [skeleton_img_2, y_pred_2, y_true_2]
+        high_order (list): [skeleton_img_3, y_pred_3, y_true_3]
     """
-    skeleton_img_1, y_pred_1 = all_junctions
-    skeleton_img_2, y_pred_2 = main_axis
-    skeleton_img_3, y_pred_3 = high_order
+    skeleton_img_1, y_pred_1, y_true_1 = all_junctions
+    skeleton_img_2, y_pred_2, y_true_2 = main_axis
+    skeleton_img_3, y_pred_3, y_true_3 = high_order
     
     fig, axes = plt.subplots(2, 4, figsize=(16, 8))
     axes = axes.flatten()
@@ -254,22 +253,31 @@ def plot_pipeline(
     axes[0].axis('off')
     
     axes[1].imshow(skeleton_img_1, cmap='gray')
-    white_px_1 = np.argwhere(y_pred_1 > 0)
-    for pts in white_px_1:
+    real_px_1 = np.argwhere(y_true_1 > 0)
+    for pts in real_px_1:
+        axes[1].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    pred_px_1 = np.argwhere(y_pred_1 > 0)
+    for pts in pred_px_1:
         axes[1].scatter(pts[1], pts[0], c='r', s=5)
     axes[1].set_title("All Junctions")
     axes[1].axis('off')
     
     axes[2].imshow(skeleton_img_2, cmap='gray')
-    white_px_2 = np.argwhere(y_pred_2 > 0)
-    for pts in white_px_2:
+    real_px_2 = np.argwhere(y_true_2 > 0)
+    for pts in real_px_2:
+        axes[2].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    pred_px_2 = np.argwhere(y_pred_2 > 0)
+    for pts in pred_px_2:
         axes[2].scatter(pts[1], pts[0], c='r', s=5)
     axes[2].set_title("Main Axis")
     axes[2].axis('off')
     
     axes[3].imshow(skeleton_img_3, cmap='gray')
-    white_px_3 = np.argwhere(y_pred_3 > 0)
-    for pts in white_px_3:
+    real_px_3 = np.argwhere(y_true_3 > 0)
+    for pts in real_px_3:
+        axes[3].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    pred_px_3 = np.argwhere(y_pred_3 > 0)
+    for pts in pred_px_3:
         axes[3].scatter(pts[1], pts[0], c='r', s=5)
     axes[3].set_title("High Order")
     axes[3].axis('off')
@@ -279,17 +287,23 @@ def plot_pipeline(
     axes[4].axis('off')
     
     axes[5].imshow(raw_img_512)
-    for pts in white_px_1:
+    for pts in real_px_1:
+        axes[5].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    for pts in pred_px_1:
         axes[5].scatter(pts[1], pts[0], c='r', s=5)
     axes[5].axis('off')
     
     axes[6].imshow(raw_img_512)
-    for pts in white_px_2:
+    for pts in real_px_2:
+        axes[6].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    for pts in pred_px_2:
         axes[6].scatter(pts[1], pts[0], c='r', s=5)
     axes[6].axis('off')
     
     axes[7].imshow(raw_img_512)
-    for pts in white_px_3:
+    for pts in real_px_3:
+        axes[7].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+    for pts in pred_px_3:
         axes[7].scatter(pts[1], pts[0], c='r', s=5)
     axes[7].axis('off')
             
