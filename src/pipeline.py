@@ -13,6 +13,31 @@ from image_processor.AccuracyManager import AccuracyManager
 from utils.ricepr_manipulate import resize_junction
 from utils.evaluation_image_generating import generate_y_true, generate_skeleton_main_axis
 
+def extract_info(binary_path: str):
+    """
+    Extract information from binary path.
+    
+    Args:
+        binary_path (str): Path to the binary image.
+    
+    Returns:
+        tuple: (name, species, ricepr_path, raw_img_512)
+    """
+    info = binary_path.split('/')
+    name = info[-1][:-4]
+    species = None if "O. " not in info[-2] else info[-2]
+    if species is not None:
+        ricepr_path = f"data/original_ricepr/{species}/{name}.ricepr"
+        raw_img_512 = plt.imread(f"images/raw_images_512/{species}/{name}.jpg")
+    else:
+        if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
+            ricepr_path = f"data/original_ricepr/O. glaberrima/{name}.ricepr"
+            raw_img_512 = plt.imread(f"images/raw_images_512/O. glaberrima/{name}.jpg")
+        else:
+            ricepr_path = f"data/original_ricepr/O. sativa/{name}.ricepr"
+            raw_img_512 = plt.imread(f"images/raw_images_512/O. sativa/{name}.jpg")
+    return name, species, ricepr_path, raw_img_512
+
 
 def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.DetectionAccuracy:
     """
@@ -32,23 +57,9 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     ## Returns:
     - RicePanicle.DetectionAccuracy object.
     """
-    # EXTRACT INFORMATION =======================================
-    info = binary_path.split('/')
-    name = info[-1][:-4]
-    species = None if "O. " not in info[-2] else info[-2]
-    if species is not None:
-        ricepr_path = f"data/original_ricepr/{species}/{name}.ricepr"
-    else:
-        if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
-            ricepr_path = f"data/original_ricepr/O. glaberrima/{name}.ricepr"
-            raw_img_512 = plt.imread(f"images/raw_images_512/O. glaberrima/{name}.jpg")  # May be needed for plotting
-        else:
-            ricepr_path = f"data/original_ricepr/O. sativa/{name}.ricepr"
-            raw_img_512 = plt.imread(f"images/raw_images_512/O. sativa/{name}.jpg")  # May be needed for plotting
-            
+    name, _, ricepr_path, raw_img_512 = extract_info(binary_path)
     binary_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
     junction_resized = resize_junction(ricepr_path)
-    # ===========================================================
     
     # ==================ALL JUNCTIONS============================
     # THINNING
@@ -115,7 +126,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     # Plot pipeline
     plot_pipeline(
         file_name=name,
-        original_img_512=raw_img_512,
+        raw_img_512=raw_img_512,
         binary_img=binary_img,
         all_junctions=[skeleton_img_1, y_pred_1_merged],
         main_axis=[skeleton_img_2, y_pred_2],
@@ -150,18 +161,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     - junction_img_merged: np.ndarray
     - y_pred_merged: np.ndarray
     """
-    # EXTRACT INFORMATION =======================================
-    if binary_path:
-        info = binary_path.split('/')
-        name = info[-1][:-4]
-        species = None if "O. " not in info[-2] else info[-2]
-        if species is None:
-            if os.path.exists(f"data/original_ricepr/O. glaberrima/{name}.ricepr"):
-                species = "O. glaberrima"
-            else:
-                species = "O. sativa"
-        original_img_512 = cv2.imread(f"images/raw_images_512/{species}/{name}.jpg")
-    # ===========================================================
+    name, _, _, raw_img_512 = extract_info(binary_path)
     
     junction_img_merged = np.copy(skeleton_img)
     y_pred_merged = np.copy(y_pred)
@@ -191,19 +191,19 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     colors = ['w', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'brown']
     colors_dict = {i: colors[i] for i in range(10)}
     
-    ax1.imshow(original_img_512)
+    ax1.imshow(raw_img_512)
     ax1.scatter(white_px[:, 1], white_px[:, 0], c='r', s=5)
     ax1.set_title("Pre-merged High Order Junctions.")
     ax1.axis('off')
     
-    ax2.imshow(original_img_512)
+    ax2.imshow(raw_img_512)
     cluster_colors = [colors_dict[label % 10] for label in labels[mask]]
     ax2.scatter(white_px[mask, 1], white_px[mask, 0], c=cluster_colors, s=5)
     ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='r', s=5)
     ax2.set_title("Clusters to be merged.")
     ax2.axis('off')
     
-    ax3.imshow(original_img_512)
+    ax3.imshow(raw_img_512)
     ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='r', s=5)
     ax3.set_title("Clusters merged as one junction.")
     ax3.axis('off')
@@ -223,7 +223,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
 
 def plot_pipeline(
     file_name: str,
-    original_img_512: np.ndarray,
+    raw_img_512: np.ndarray,
     binary_img: np.ndarray,
     all_junctions: list,
     main_axis: list,
@@ -235,7 +235,7 @@ def plot_pipeline(
     Plot the whole pipeline
 
     Args:
-        original_img_512 (np.ndarray)
+        raw_img_512 (np.ndarray)
         binary_img (np.ndarray): segmentation result
         all_junctions (list): [skeleton_img_1, y_pred_1]
         main_axis (list): [skeleton_img_2, y_pred_2]
@@ -274,21 +274,21 @@ def plot_pipeline(
     axes[3].set_title("High Order")
     axes[3].axis('off')
     
-    axes[4].imshow(original_img_512)
+    axes[4].imshow(raw_img_512)
     axes[4].set_title("Original Image")
     axes[4].axis('off')
     
-    axes[5].imshow(original_img_512)
+    axes[5].imshow(raw_img_512)
     for pts in white_px_1:
         axes[5].scatter(pts[1], pts[0], c='r', s=5)
     axes[5].axis('off')
     
-    axes[6].imshow(original_img_512)
+    axes[6].imshow(raw_img_512)
     for pts in white_px_2:
         axes[6].scatter(pts[1], pts[0], c='r', s=5)
     axes[6].axis('off')
     
-    axes[7].imshow(original_img_512)
+    axes[7].imshow(raw_img_512)
     for pts in white_px_3:
         axes[7].scatter(pts[1], pts[0], c='r', s=5)
     axes[7].axis('off')
