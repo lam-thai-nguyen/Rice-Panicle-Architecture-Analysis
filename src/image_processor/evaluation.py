@@ -81,3 +81,24 @@ def _junction2disk(y_true: np.ndarray, return_counts=False) -> list:
     
     return results
     
+
+def show_disk_shape():
+    img = np.zeros((11, 11))
+    x, y = 5, 5
+    img[x, y] = 255
+    img[x-2:x+3, y-2:y+3] = 255
+    img[x-3:x+4, y-2:y+3] = 255
+    img[x-2:x+3, y-3:y+4] = 255
+    img[x, y-4:y+5] = 255
+    img[x-4:x+5, y] = 255
+    
+    plt.figure(figsize=(5, 5))
+    plt.imshow(img, cmap='gray')
+    plt.title("Disk R=4")
+    plt.axis('off')
+    plt.show()
+    
+
+if __name__ == "__main__":
+    show_disk_shape()
+    
