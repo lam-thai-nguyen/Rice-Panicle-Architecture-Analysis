@@ -41,7 +41,7 @@ def generate_bbox_grains_junctions(original_img_path: str, vertex_coordinates_pa
 
     # info = O. glaberrima/2_2_1_1_3_DSC09839.jpg
     info = '/'.join(original_img_path.split('/')[-2:])
-    save_path = "dataset/bbox/grains_junctions/" + info
+    save_path = "images/bounding_boxes/grains_junctions/" + info
     cv2.imwrite(save_path, img)
     
     
@@ -302,10 +302,11 @@ def _bounding_box_pb(img, x1, y1, x2, y2) -> None:
 
 
 if __name__ == "__main__":
-    original_folder_path = "dataset/original"
+    species = "O. glaberrima"
+    original_folder_path = f"data/original_images/{species}"
     img_names = os.listdir(original_folder_path)
     
-    xml_folder_path = "dataset/vertex_coordinates"
+    xml_folder_path = f"data/original_ricepr/{species}"
     
     for img in img_names:
         img_path = original_folder_path + "/" + img
