@@ -84,10 +84,10 @@ def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> n
     
     # Processing ===================================================
     skeleton_main_axis = np.copy(skeleton_img)
-    skeleton_main_axis[:y_min-2, :] = 0
-    skeleton_main_axis[y_max+2:, :] = 0
-    skeleton_main_axis[:, :x_min-2] = 0
-    skeleton_main_axis[:, x_max+2:] = 0
+    skeleton_main_axis[:y_min-4, :] = 0
+    skeleton_main_axis[y_max+5:, :] = 0
+    skeleton_main_axis[:, :x_min-4] = 0
+    skeleton_main_axis[:, x_max+5:] = 0
     
     return skeleton_main_axis   
 
