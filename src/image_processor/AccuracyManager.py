@@ -59,10 +59,10 @@ class AccuracyManager:
         self.scores[("High order junctions", "precision")] = self.pr_3
         self.scores[("High order junctions", "recall")] = self.rc_3
 
-    def save_as_csv(self, save_path: str):
+    def save_as_excel(self, save_path: str):
         df = pd.DataFrame(self.scores, index=self.names)
         df.index.name = "image_name"
-        df.to_csv(save_path)
+        df.to_excel(save_path)
                 
     def read_fold(self, fold_path: str) -> None:
             
