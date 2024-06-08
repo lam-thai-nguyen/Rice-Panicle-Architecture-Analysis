@@ -309,11 +309,11 @@ def generate_junctions(original_img_path: str, vertex_coordinates_path: str) -> 
     generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
     
     for x, y in generating:
-        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+        cv2.circle(img, (x, y), 10, color=(255, 255, 0), thickness=2)
     for x, y in primary:
-        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+        cv2.circle(img, (x, y), 10, color=(255, 0, 255), thickness=2)
     for x, y in secondary:
-        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=2)
     for x, y in tertiary:
         cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
     for x, y in quaternary:
@@ -349,8 +349,8 @@ def main():
     
     
 if __name__ == "__main__":
-    original_img_path = "data/original_images/O. sativa/38_2_1_2_1_DSC09522_.jpg"
+    original_img_path = "data/original_images/O. glaberrima/55_2_1_2_2_DSC01705.jpg"
     img_name = original_img_path.split("/")[-1][:-4]
-    vertex_coordinates_path = f"data/original_ricepr/O. sativa/{img_name}.ricepr"
+    vertex_coordinates_path = f"data/original_ricepr/O. glaberrima/{img_name}.ricepr"
     generate_junctions(original_img_path, vertex_coordinates_path)
     
