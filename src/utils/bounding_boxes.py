@@ -3,6 +3,7 @@
 ###########################
 
 import os
+from matplotlib import pyplot as plt
 import numpy as np  
 import cv2
 import xml.etree.ElementTree as ET
@@ -301,7 +302,29 @@ def _bounding_box_pb(img, x1, y1, x2, y2) -> None:
     return None
 
 
-if __name__ == "__main__":
+def generate_junctions(original_img_path: str, vertex_coordinates_path: str) -> None:
+    
+    img = cv2.imread(original_img_path)
+    
+    generating, end, primary, secondary, tertiary, quaternary = _get_vertex(vertex_coordinates_path)
+    
+    for x, y in generating:
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+    for x, y in primary:
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+    for x, y in secondary:
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+    for x, y in tertiary:
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+    for x, y in quaternary:
+        cv2.circle(img, (x, y), 10, color=(0, 0, 255), thickness=-1)
+        
+    cv2.imwrite("test.png", img)
+    
+    return
+
+
+def main():
     species = "O. glaberrima"
     original_folder_path = f"data/original_images/{species}"
     img_names = os.listdir(original_folder_path)
@@ -323,4 +346,11 @@ if __name__ == "__main__":
     
     # ========Inspect edges============ (Optional)
     # inspect_edges("dataset/original/2_2_1_1_3_DSC09839.JPG", "dataset/vertex_coordinates/2_2_1_1_3_DSC09839.ricepr")
+    
+    
+if __name__ == "__main__":
+    original_img_path = "data/original_images/O. sativa/38_2_1_2_1_DSC09522_.jpg"
+    img_name = original_img_path.split("/")[-1][:-4]
+    vertex_coordinates_path = f"data/original_ricepr/O. sativa/{img_name}.ricepr"
+    generate_junctions(original_img_path, vertex_coordinates_path)
     
