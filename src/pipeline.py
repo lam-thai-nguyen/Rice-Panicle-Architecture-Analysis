@@ -102,7 +102,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     y_true_2 = generate_y_true(junction_resized, main_axis=True)
     n_true_2 = len(y_true_2[y_true_2 > 0])
     f1_2, pr_2, rc_2 = RicePanicle.Evaluation.f1_score(y_true_2, y_pred_2, _return_metrics=True)
-    print(f"2 ==>> f1: {f1_2:.4f}, precision: {pr_2:.4f}, recall: {rc_2:.4f}")
+    print(f"main axis ==>> f1: {f1_2:.4f}, precision: {pr_2:.4f}, recall: {rc_2:.4f}")
 
     # ===================HIGH ORDER===============================
     # THINNING (Done Previously)
@@ -115,16 +115,16 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     y_true_3 = generate_y_true(junction_resized, high_order=True)
     n_true_3 = len(y_true_3[y_true_3 > 0])
     f1_3, pr_3, rc_3 = RicePanicle.Evaluation.f1_score(y_true_3, y_pred_3, _return_metrics=True)
-    print(f"3 ==>> f1: {f1_3:.4f}, precision: {pr_3:.4f}, recall: {rc_3:.4f}")
+    print(f"high order ==>> f1: {f1_3:.4f}, precision: {pr_3:.4f}, recall: {rc_3:.4f}")
 
     # ==============CHECK IF THE PROCESS IS TRUSTWORTHY===================
-    print(f"\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} + {n_true_3} -> {n_true_1 == n_true_2 + n_true_3}")
-    print(f"\t\t\t We have predicted {n_pred_1} junctions -> {n_pred_1} = {n_pred_2} + {n_pred_3} -> {n_pred_1 == n_pred_2 + n_pred_3}")
+    print(f"\n\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} main axis + {n_true_3} high order -> {n_true_1 == n_true_2 + n_true_3}")
+    print(f"\t\t\t We have predicted {n_pred_1} junctions -> {n_pred_1} = {n_pred_2} main axis + {n_pred_3} high order -> {n_pred_1 == n_pred_2 + n_pred_3}")
     
     if (n_true_1 == n_true_2 + n_true_3) and (n_pred_1 == n_pred_2 + n_pred_3):
-        print("\t\t\t\t\t\t\t\t\t\t\t TRUSTWORTHY!\n")
+        print("\t\t\t TRUSTWORTHY!")
     else:
-        print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
+        print("\t\t\t NEEDS REVIEWING!")
 
     print("".center(50, "="))
 
@@ -139,6 +139,9 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
         person=person,
         criterion=criterion,
     )
+
+    print(f"Saving: images/pipeline/merge_pred/{person}_{criterion}/{name}.jpg")
+    print(f"Saving: images/pipeline/pipeline/{person}_{criterion}/{name}.jpg")
 
     # Save accuracy
     detection_accuracy = RicePanicle.DetectionAccuracy(
@@ -175,7 +178,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     white_px = np.argwhere(y_pred_merged > 0)
     n_initial = len(white_px)
 
-    db = DBSCAN(eps=7, min_samples=2).fit(white_px)
+    db = DBSCAN(eps=6, min_samples=2).fit(white_px)
     labels = db.labels_
 
     # Merging
@@ -286,8 +289,8 @@ def plot_pipeline(
     axes[3].set_title("High Order")
     axes[3].axis("off")
 
-    axes[4].imshow(raw_img_512)
-    axes[4].set_title("Original Image")
+    axes[4].imshow(skeleton_img_1, cmap="gray")
+    axes[4].set_title("Skeleton Image")
     axes[4].axis("off")
 
     axes[5].imshow(raw_img_512)
