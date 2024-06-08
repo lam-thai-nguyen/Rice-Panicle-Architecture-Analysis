@@ -13,17 +13,21 @@ from image_processor.AccuracyManager import AccuracyManager
 from utils.ricepr_manipulate import resize_junction
 from utils.evaluation_image_generating import generate_y_true, generate_skeleton_main_axis
 
-def extract_info(binary_path: str):
+
+def _extract_info(binary_path: str):
     """
     Extract information from binary path.
     
+    ## Example binary path:
+    images/model_predictions/K_1_4_UNET_UNET/3_2_1_2_3_DSC01275.png
+
     Args:
         binary_path (str): Path to the binary image.
-    
+
     Returns:
         tuple: (name, species, ricepr_path, raw_img_512)
     """
-    info = binary_path.split('/')
+    info = binary_path.split("/")
     name = info[-1][:-4]
     species = None if "O. " not in info[-2] else info[-2]
     if species is not None:
@@ -36,95 +40,94 @@ def extract_info(binary_path: str):
         else:
             ricepr_path = f"data/original_ricepr/O. sativa/{name}.ricepr"
             raw_img_512 = plt.imread(f"images/raw_images_512/O. sativa/{name}.jpg")
+            
     return name, species, ricepr_path, raw_img_512
 
 
 def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.DetectionAccuracy:
     """
-    ## Example binary path:
-    images/model_predictions/K_1_4_UNET_UNET/3_2_1_2_3_DSC01275.png
-    
     ## Naming convention:
     - all junctions: 1
     - main axis junctions: 2
     - high order junctions: 3
-    
+
     ## Idea:
     - Remove false junctions, characterized by a cluster of close junctions, by using _merge_pred().
     - Only apply _merge_pred() for high order junctions as main axis junctions can be close to each other.
     - y_pred_1 = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged. So the code will be messy but makes sense.
-    
+
     ## Returns:
     - RicePanicle.DetectionAccuracy object.
     """
-    name, _, ricepr_path, raw_img_512 = extract_info(binary_path)
-    binary_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)
-    junction_resized = resize_junction(ricepr_path)
+    name, _, ricepr_path, raw_img_512 = _extract_info(binary_path)  # Extract information
+    
+    binary_img = cv2.imread(binary_path, cv2.IMREAD_GRAYSCALE)  # Read binary image
+    junction_resized = resize_junction(ricepr_path)  # Resize junction (original size -> 512x512) ==>> dict[order] = [(x, y), ...]
+    
     print("".center(50, "="))
-    print(f"processing {name}...")
-    
+    print(f"==>> processing image: {name} <<==")
+
     # ==================ALL JUNCTIONS============================
-    skeleton_img_1 = RicePanicle.Thinning.zhang_suen(binary_img)  # THINNING
-    
+    # THINNING
+    skeleton_img_1 = RicePanicle.Thinning.zhang_suen(binary_img)
+
     # CLUSTERING (y_pred_1_merged = y_pred_2 + y_pred_3_merged = y_pred_2 + (y_pred_1 - y_pred_2)merged)
-    ##########################################################################################################
-    # 1. y_pred_1
-    _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)
-    # 2. y_pred_2
+    _, y_pred_1 = RicePanicle.Clustering.crossing_number(skeleton_img_1, return_pred_=True)  # y_pred_1
+    
     skeleton_img_2 = generate_skeleton_main_axis(skeleton_img_1, ricepr_path)
-    _, y_pred_2 = RicePanicle.Clustering.crossing_number(skeleton_img_2, return_pred_=True)
-    # 3. y_pred_3 = (y_pred_1 - y_pred_2)
+    _, y_pred_2 = RicePanicle.Clustering.crossing_number(skeleton_img_2, return_pred_=True)  # y_pred_2
+    
     skeleton_img_3 = skeleton_img_1 - skeleton_img_2
-    y_pred_3 = y_pred_1 - y_pred_2
-    # 4. y_pred_3_merged
-    _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3, binary_path, person=person, criterion=criterion)
-    # 5. y_pred_1_merged = y_pred_2 + y_pred_3_merged
-    y_pred_1_merged = y_pred_2 + y_pred_3_merged
-    ##########################################################################################################
+    y_pred_3 = y_pred_1 - y_pred_2  # y_pred_3 = (y_pred_1 - y_pred_2)
     
+    _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3, binary_path, person=person, criterion=criterion)  # y_pred_3_merged
+    
+    y_pred_1_merged = y_pred_2 + y_pred_3_merged  # y_pred_1_merged = y_pred_2 + y_pred_3_merged
+
     n_pred_1 = len(y_pred_1_merged[y_pred_1_merged > 0])
-    
+
     # EVALUATION
     y_true_1 = generate_y_true(junction_resized)
     n_true_1 = len(y_true_1[y_true_1 > 0])
     f1_1, pr_1, rc_1 = RicePanicle.Evaluation.f1_score(y_true_1, y_pred_1_merged, _return_metrics=True)
-    print(f"1 ==>> f1: {f1_1}, precision: {pr_1}, recall: {rc_1}")
-    
+    print(f"all junction ==>> f1: {f1_1:.4f}, precision: {pr_1:.4f}, recall: {rc_1:.4f}")
+
     # ===================MAIN AXIS===============================
     # THINNING (Done Previously)
-    
+
     # CLUSTERING (Done Previously)
     n_pred_2 = len(y_pred_2[y_pred_2 > 0])
-    
+
     # EVALUATION
     y_true_2 = generate_y_true(junction_resized, main_axis=True)
     n_true_2 = len(y_true_2[y_true_2 > 0])
     f1_2, pr_2, rc_2 = RicePanicle.Evaluation.f1_score(y_true_2, y_pred_2, _return_metrics=True)
-    print(f"2 ==>> f1: {f1_2}, precision: {pr_2}, recall: {rc_2}")
-    
+    print(f"2 ==>> f1: {f1_2:.4f}, precision: {pr_2:.4f}, recall: {rc_2:.4f}")
+
     # ===================HIGH ORDER===============================
     # THINNING (Done Previously)
-    
+
     # CLUSTERING
-    y_pred_3 = y_pred_1_merged - y_pred_2  # == y_pred_3_merged
+    y_pred_3 = y_pred_3_merged
     n_pred_3 = len(y_pred_3[y_pred_3 > 0])
-    
+
     # EVALUATION
     y_true_3 = generate_y_true(junction_resized, high_order=True)
     n_true_3 = len(y_true_3[y_true_3 > 0])
     f1_3, pr_3, rc_3 = RicePanicle.Evaluation.f1_score(y_true_3, y_pred_3, _return_metrics=True)
-    print(f"3 ==>> f1: {f1_3}, precision: {pr_3}, recall: {rc_3}")
-    
+    print(f"3 ==>> f1: {f1_3:.4f}, precision: {pr_3:.4f}, recall: {rc_3:.4f}")
+
     # ==============CHECK IF THE PROCESS IS TRUSTWORTHY===================
-    print(f"\t\t\t\t\t\t\t\t\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} + {n_true_3} -> {n_true_1 == n_true_2 + n_true_3}")
-    print(f"\t\t\t\t\t\t\t\t\t\t\t We have predicted {n_pred_1} junctions -> {n_pred_1} = {n_pred_2} + {n_pred_3} -> {n_pred_1 == n_pred_2 + n_pred_3}")
+    print(f"\t\t\t There are {n_true_1} TRUE junctions -> {n_true_1} = {n_true_2} + {n_true_3} -> {n_true_1 == n_true_2 + n_true_3}")
+    print(f"\t\t\t We have predicted {n_pred_1} junctions -> {n_pred_1} = {n_pred_2} + {n_pred_3} -> {n_pred_1 == n_pred_2 + n_pred_3}")
+    
     if (n_true_1 == n_true_2 + n_true_3) and (n_pred_1 == n_pred_2 + n_pred_3):
         print("\t\t\t\t\t\t\t\t\t\t\t TRUSTWORTHY!\n")
     else:
         print("\t\t\t\t\t\t\t\t\t\t\t NEEDS REVIEWING!\n")
-        
+
     print("".center(50, "="))
-    
+
     # Plot pipeline
     plot_pipeline(
         file_name=name,
@@ -134,17 +137,17 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
         main_axis=[skeleton_img_2, y_pred_2, y_true_2],
         high_order=[skeleton_img_3, y_pred_3, y_true_3],
         person=person,
-        criterion=criterion
+        criterion=criterion,
     )
-    
+
     # Save accuracy
     detection_accuracy = RicePanicle.DetectionAccuracy(
         name=name,
         all_junctions=[f1_1, pr_1, rc_1],
         main_axis=[f1_2, pr_2, rc_2],
-        high_order=[f1_3, pr_3, rc_3]
-        )
-    
+        high_order=[f1_3, pr_3, rc_3],
+    )
+
     return detection_accuracy
 
 
@@ -157,66 +160,67 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     - y_pred: np.ndarray
     - skeleton_img: np.ndarray
     - binary_path: str
-    - _plot=False
-        
+    - person
+    - criterion
+
     ## Returns:
     - junction_img_merged: np.ndarray
     - y_pred_merged: np.ndarray
     """
-    name, _, _, raw_img_512 = extract_info(binary_path)
-    
+    name, _, _, raw_img_512 = _extract_info(binary_path)
+
     junction_img_merged = np.copy(skeleton_img)
     y_pred_merged = np.copy(y_pred)
-    
+
     white_px = np.argwhere(y_pred_merged > 0)
     n_initial = len(white_px)
-    
+
     db = DBSCAN(eps=7, min_samples=2).fit(white_px)
     labels = db.labels_
-    
+
     # Merging
     for label in np.unique(labels):
         if label != -1:
             pts = white_px[labels == label]
             for a, b in pts:
                 y_pred_merged[a, b] = 0
-                
-            x, y = np.mean(pts, axis=0).astype('i')
+
+            x, y = np.mean(pts, axis=0).astype("i")
             y_pred_merged[x, y] = 255
-    
+
     white_px_merged = np.argwhere(y_pred_merged > 0)
     n_merged = len(white_px_merged)
-    
+
     # Visualization
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
     mask = labels != -1
-    
+
     ax1.imshow(raw_img_512)
-    ax1.scatter(white_px[:, 1], white_px[:, 0], c='r', s=5)
+    ax1.scatter(white_px[:, 1], white_px[:, 0], c="r", s=5)
     ax1.set_title("Pre-merged High Order Junctions.")
-    ax1.axis('off')
-    
+    ax1.axis("off")
+
     ax2.imshow(raw_img_512)
-    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c='w', s=5)  
-    ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c='r', s=5)
+    ax2.scatter(white_px[mask, 1], white_px[mask, 0], c="w", s=5)
+    ax2.scatter(white_px[~mask, 1], white_px[~mask, 0], c="r", s=5)
     ax2.set_title("Clusters to be merged.")
-    ax2.axis('off')
-    
+    ax2.axis("off")
+
     ax3.imshow(raw_img_512)
-    ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c='r', s=5)
+    ax3.scatter(white_px_merged[:, 1], white_px_merged[:, 0], c="r", s=5)
     ax3.set_title("Clusters merged as one junction.")
-    ax3.axis('off')
+    ax3.axis("off")
 
     plt.suptitle(f"Merging High Order Junctions\nPrevious: {n_initial} -> Merged: {n_merged}")
-    
+
     plt.tight_layout()
     plt.savefig(f"images/pipeline/merge_pred/{person}_{criterion}/{name}.jpg")
     plt.close(fig)
-            
+
     junction_img_merged = cv2.cvtColor(junction_img_merged, cv2.COLOR_GRAY2RGB)
     for i in range(len(white_px_merged)):
         cv2.circle(junction_img_merged, (white_px_merged[i][1], white_px_merged[i][0]), 2, (255, 0, 0), -1)
-    
+
     return junction_img_merged, y_pred_merged
 
 
@@ -226,10 +230,10 @@ def plot_pipeline(
     binary_img: np.ndarray,
     all_junctions: list,
     main_axis: list,
-    high_order:list,
+    high_order: list,
     person: str,
-    criterion: int
-    ) -> None:
+    criterion: int,
+) -> None:
     """
     Plot the whole pipeline
 
@@ -243,74 +247,74 @@ def plot_pipeline(
     skeleton_img_1, y_pred_1, y_true_1 = all_junctions
     skeleton_img_2, y_pred_2, y_true_2 = main_axis
     skeleton_img_3, y_pred_3, y_true_3 = high_order
-    
+
     fig, axes = plt.subplots(2, 4, figsize=(16, 8))
     axes = axes.flatten()
-            
+
     # Plotting
-    axes[0].imshow(binary_img, cmap='gray')
+    axes[0].imshow(binary_img, cmap="gray")
     axes[0].set_title("Binary Image")
-    axes[0].axis('off')
-    
-    axes[1].imshow(skeleton_img_1, cmap='gray')
+    axes[0].axis("off")
+
+    axes[1].imshow(skeleton_img_1, cmap="gray")
     real_px_1 = np.argwhere(y_true_1 > 0)
     for pts in real_px_1:
-        axes[1].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[1].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     pred_px_1 = np.argwhere(y_pred_1 > 0)
     for pts in pred_px_1:
-        axes[1].scatter(pts[1], pts[0], c='r', s=5)
+        axes[1].scatter(pts[1], pts[0], c="r", s=5)
     axes[1].set_title("All Junctions")
-    axes[1].axis('off')
-    
-    axes[2].imshow(skeleton_img_2, cmap='gray')
+    axes[1].axis("off")
+
+    axes[2].imshow(skeleton_img_2, cmap="gray")
     real_px_2 = np.argwhere(y_true_2 > 0)
     for pts in real_px_2:
-        axes[2].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[2].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     pred_px_2 = np.argwhere(y_pred_2 > 0)
     for pts in pred_px_2:
-        axes[2].scatter(pts[1], pts[0], c='r', s=5)
+        axes[2].scatter(pts[1], pts[0], c="r", s=5)
     axes[2].set_title("Main Axis")
-    axes[2].axis('off')
-    
-    axes[3].imshow(skeleton_img_3, cmap='gray')
+    axes[2].axis("off")
+
+    axes[3].imshow(skeleton_img_3, cmap="gray")
     real_px_3 = np.argwhere(y_true_3 > 0)
     for pts in real_px_3:
-        axes[3].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[3].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     pred_px_3 = np.argwhere(y_pred_3 > 0)
     for pts in pred_px_3:
-        axes[3].scatter(pts[1], pts[0], c='r', s=5)
+        axes[3].scatter(pts[1], pts[0], c="r", s=5)
     axes[3].set_title("High Order")
-    axes[3].axis('off')
-    
+    axes[3].axis("off")
+
     axes[4].imshow(raw_img_512)
     axes[4].set_title("Original Image")
-    axes[4].axis('off')
-    
+    axes[4].axis("off")
+
     axes[5].imshow(raw_img_512)
     for pts in real_px_1:
-        axes[5].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[5].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     for pts in pred_px_1:
-        axes[5].scatter(pts[1], pts[0], c='r', s=5)
-    axes[5].axis('off')
-    
+        axes[5].scatter(pts[1], pts[0], c="r", s=5)
+    axes[5].axis("off")
+
     axes[6].imshow(raw_img_512)
     for pts in real_px_2:
-        axes[6].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[6].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     for pts in pred_px_2:
-        axes[6].scatter(pts[1], pts[0], c='r', s=5)
-    axes[6].axis('off')
-    
+        axes[6].scatter(pts[1], pts[0], c="r", s=5)
+    axes[6].axis("off")
+
     axes[7].imshow(raw_img_512)
     for pts in real_px_3:
-        axes[7].scatter(pts[1], pts[0], c='b', s=5, marker='s')
+        axes[7].scatter(pts[1], pts[0], c="b", s=5, marker="s")
     for pts in pred_px_3:
-        axes[7].scatter(pts[1], pts[0], c='r', s=5)
-    axes[7].axis('off')
-            
+        axes[7].scatter(pts[1], pts[0], c="r", s=5)
+    axes[7].axis("off")
+
     plt.tight_layout()
     plt.savefig(f"images/pipeline/pipeline/{person}_{criterion}/{file_name}.jpg")
     plt.close(fig)
-    
+
 
 def test_manager():
     manager = AccuracyManager()
@@ -334,23 +338,23 @@ def main():
     argparser.add_argument("-m", "--model", type=str, help="Model name", choices=["U2CRACKNET", "SEGNET", "FCN", "DEEPCRACK", "RUC_NET", "ACS", "UNET"], default="UNET")
     argparser.add_argument("-s", "--save-as-excel", type=bool, choices=[True, False], default=False)
     args = argparser.parse_args()
-    
+
     person, criterion, model, save_as_excel = args.person, args.evaluation_criterion, args.model, args.save_as_excel
     
     score_manager = AccuracyManager()
     pred_folder = "images/model_predictions"
-    
+
     for pred in os.listdir(pred_folder):
         if pred.startswith(f"{person}_{criterion}"):
-            images_path = pred_folder + '/' + pred
+            images_path = pred_folder + "/" + pred
             print(f"==>> images_path: {images_path}")
             break
-    
-    for image_name in os.listdir(images_path):        
-        binary_path = images_path + '/' + image_name
+
+    for image_name in os.listdir(images_path):
+        binary_path = images_path + "/" + image_name
         detection_accuracy = pipeline(binary_path, person, criterion)
         score_manager.add(detection_accuracy)
-        
+
     if save_as_excel:
         score_manager.save_as_excel(f"data/junction_detection_result/{person}_{criterion}_{model}.xlsx")
         print(f"File saved: data/junction_detection_result/{person}_{criterion}_{model}.xlsx")
@@ -358,4 +362,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
