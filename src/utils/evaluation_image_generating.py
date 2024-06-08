@@ -21,42 +21,34 @@ def generate_y_true(junction: dict, main_axis: bool = False, high_order: bool = 
     # Returns
     - y_true: np.ndarray
     """
-    if not main_axis and not high_order:
-        temp = []
-        for value in junction.values():
-            temp.extend(value)
-        
-        y_true = np.zeros((512, 512))
-        
-        for y, x in temp:
-            y_true[x, y] = 255
-            
-        return y_true
+    generating = junction.get('generating')
+    generating = [sorted(generating, key=lambda x: x[0])[-1]]  # Remove end generating point
+    primary = junction.get('primary')
+    main_axis_junction = generating + primary
     
-    elif main_axis:
-        generating = junction.get('generating')
-        primary = junction.get('primary')
-        main_axis_junction = generating + primary
-        
-        y_true = np.zeros((512, 512))
-        
-        for y, x in main_axis_junction:
-            y_true[x, y] = 255
-            
-        return y_true
+    y_true_main_axis = np.zeros((512, 512))
     
-    elif high_order:
-        secondary = junction.get('secondary')
-        tertiary = junction.get('tertiary')
-        quaternary = junction.get('quaternary')
-        high_order_junction = secondary + tertiary + quaternary
-    
-        y_true = np.zeros((512, 512))
-        
-        for y, x in high_order_junction:
-            y_true[x, y] = 255
+    for y, x in main_axis_junction:
+        y_true_main_axis[x, y] = 255
             
-        return y_true
+    if main_axis and not high_order:
+        return y_true_main_axis
+
+    secondary = junction.get('secondary')
+    tertiary = junction.get('tertiary')
+    quaternary = junction.get('quaternary')
+    high_order_junction = secondary + tertiary + quaternary
+
+    y_true_high_order = np.zeros((512, 512))
+    
+    for y, x in high_order_junction:
+        y_true_high_order[x, y] = 255
+            
+    if high_order and not main_axis:
+        return y_true_high_order
+    
+    if main_axis and high_order or not main_axis and not high_order:
+        return y_true_main_axis + y_true_high_order
     
 
 def generate_skeleton_main_axis(skeleton_img: np.ndarray, ricepr_path: str) -> np.ndarray:
