@@ -178,7 +178,7 @@ def _merge_pred(y_pred: np.ndarray, skeleton_img: np.ndarray, binary_path: str, 
     white_px = np.argwhere(y_pred_merged > 0)
     n_initial = len(white_px)
 
-    db = DBSCAN(eps=6, min_samples=2).fit(white_px)
+    db = DBSCAN(eps=7, min_samples=2).fit(white_px)
     labels = db.labels_
 
     # Merging
