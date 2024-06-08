@@ -16,7 +16,7 @@ def resize_junction(ricepr_path: str, dst_size: tuple = (512, 512)) -> dict:
     - dst_size (tuple) = (dst_height, dst_width)
 
     ## Returns
-    junction_xy_resized (dict) = (512, 512)
+    junction_xy_resized (dict)
     """
     # Extract information ========================
     info = ricepr_path.split('/')
