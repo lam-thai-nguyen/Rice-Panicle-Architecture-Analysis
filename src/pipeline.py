@@ -340,7 +340,7 @@ def main():
     argparser.add_argument("person", type=str, help="T: Thai, K: Kien ==>> version of person", choices=["T", "K"])
     argparser.add_argument("evaluation_criterion", type=int, help="1: O. glaberrima, 2: O. sativa, 3: O. glaberrima and O. sativa", choices=[1, 2, 3])
     argparser.add_argument("-m", "--model", type=str, help="Model name", choices=["U2CRACKNET", "SEGNET", "FCN", "DEEPCRACK", "RUC_NET", "ACS", "UNET"], default="UNET")
-    argparser.add_argument("-s", "--save-as-excel", type=bool, choices=[True, False], default=False)
+    argparser.add_argument("-s", "--save-as-excel", action='store_true', help="Save results as an Excel file")
     args = argparser.parse_args()
 
     person, criterion, model, save_as_excel = args.person, args.evaluation_criterion, args.model, args.save_as_excel
