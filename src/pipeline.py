@@ -79,6 +79,7 @@ def pipeline(binary_path: str, person: str, criterion: int) -> RicePanicle.Detec
     
     skeleton_img_3 = skeleton_img_1 - skeleton_img_2
     y_pred_3 = y_pred_1 - y_pred_2  # y_pred_3 = (y_pred_1 - y_pred_2)
+    y_pred_3[y_pred_3 == -255.] = 0.  # solution for y_pred_3 == -255 when using dbscan
     
     _, y_pred_3_merged = _merge_pred(y_pred_3, skeleton_img_3, binary_path, person=person, criterion=criterion)  # y_pred_3_merged
     
