@@ -2,9 +2,11 @@
 # Author: Lam Thai Nguyen #
 ###########################
 
+from matplotlib import pyplot as plt
 import numpy as np
 import cv2
 from sklearn.cluster import DBSCAN
+from .finch import FINCH
 
 
 def _crossing_number(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.ndarray]:
@@ -96,4 +98,44 @@ def _dbscan(skeleton_img: np.ndarray, return_pred_: bool):
             y_pred[centers[i][0], centers[i][1]] = 255
         results.append(y_pred)
 
+    return results
+
+
+def _finch(skeleton_img: np.ndarray, return_pred_: bool) -> list[np.ndarray]:
+    """
+    ## Description
+    Performs FINCH Method to find junctions in a given skeleton image.
+    
+    ## Arguments
+    - skeleton_img: np.ndarray -> the skeleton matrix.
+    - return_pred_: bool -> Set to true to return y_pred
+    
+    ## Returns
+    - junction_img: np.ndarray -> the skeleton with junction matrix.
+    - y_pred: np.ndarray, if return_pred_
+    """
+    img = np.copy(skeleton_img)
+
+    white_px = np.argwhere(img > 0)  
+    
+    c, _, _ = FINCH(white_px, distance='euclidean')
+    
+    centers = []
+    for label in np.unique(c[:, -1]):
+        center = np.mean(white_px[c[:, -1] == label], axis=0)
+        centers.append(center.astype(int))
+    
+    junction_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    for i in range(len(centers)):
+        cv2.circle(junction_img, (centers[i][1], centers[i][0]), 2, (255, 0, 0), -1)
+    
+    results = [junction_img]
+    
+    # Create y_pred
+    if return_pred_:
+        y_pred = np.zeros((512, 512))
+        for i in range(len(centers)):
+            y_pred[centers[i][0], centers[i][1]] = 255
+        results.append(y_pred)
+        
     return results

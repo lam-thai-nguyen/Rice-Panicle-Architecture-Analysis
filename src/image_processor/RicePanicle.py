@@ -4,7 +4,7 @@
 
 import numpy as np
 from .thinning import _zhang_suen, _gradient_based_optimization
-from .clustering import _crossing_number, _dbscan
+from .clustering import _crossing_number, _dbscan, _finch
 from .evaluation import _f1_score
 
 
@@ -48,6 +48,22 @@ class RicePanicle:
         @staticmethod
         def dbscan(skeleton_img: np.ndarray, return_pred_: bool):
             return _dbscan(skeleton_img, return_pred_)
+        
+        @staticmethod
+        def finch(skeleton_img: np.ndarray, return_pred_: bool):
+            """
+            ## Description
+            Performs FINCH Method to find junctions in a given skeleton image.
+            
+            ## Arguments
+            - skeleton_img: np.ndarray -> the skeleton matrix.
+            - return_pred_: bool -> Set to true to return y_pred
+            
+            ## Returns
+            - junction_img: np.ndarray -> the skeleton with junction matrix.
+            - y_pred: np.ndarray, if return_pred_
+            """
+            return _finch(skeleton_img, return_pred_)
 
     class Evaluation:
         @staticmethod
